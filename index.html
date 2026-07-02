@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Battery Monitor Dashboard</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; text-align: center; background-color: #f0f4f8; margin: 0; padding: 30px; }
+        h1 { color: #1a365d; margin-bottom: 5px; }
+        .subtitle { color: #4a5568; margin-bottom: 25px; }
+        .total-box { background: #fff; border-left: 5px solid #2b6cb0; display: inline-block; padding: 15px 40px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); font-size: 22px; font-weight: bold; color: #2d3748; margin-bottom: 30px; }
+        .container { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; max-width: 1000px; margin: 0 auto; }
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.04); border-top: 4px solid #3182ce; }
+        .card h3 { margin: 0 0 10px 0; color: #718096; font-size: 16px; }
+        .value { font-size: 28px; font-weight: bold; color: #2b6cb0; }
+        .unit { font-size: 14px; color: #a0aec0; margin-left: 3px; }
+        .time-box { margin-top: 40px; font-size: 13px; color: #718096; background: #edf2f7; display: inline-block; padding: 6px 16px; border-radius: 20px; }
+    </style>
+</head>
+<body>
+
+    <h1>Battery Monitor System</h1>
+    <div class="subtitle">ระบบติดตามและวัดระดับแรงดันแบตเตอรี่ 8 โมดูล</div>
+
+    <div class="total-box">
+        แรงดันรวมระบบ (Total): <span id="total-v">--</span> V
+    </div>
+
+    <div class="container">
+        <div class="card"><h3>Module 1</h3><span id="v1" class="value">--</span><span class="unit">V</span></div>
+        <div class="card"><h3>Module 2</h3><span id="v2" class="value">--</span><span class="unit">V</span></div>
+        <div class="card"><h3>Module 3</h3><span id="v3" class="value">--</span><span class="unit">V</span></div>
+        <div class="card"><h3>Module 4</h3><span id="v4" class="value">--</span><span class="unit">V</span></div>
+        <div class="card"><h3>Module 5</h3><span id="v5" class="value">--</span><span class="unit">V</span></div>
+        <div class="card"><h3>Module 6</h3><span id="v6" class="value">--</span><span class="unit">V</span></div>
+        <div class="card"><h3>Module 7</h3><span id="v7" class="value">--</span><span class="unit">V</span></div>
+        <div class="card"><h3>Module 8</h3><span id="v8" class="value">--</span><span class="unit">V</span></div>
+    </div>
+
+    <div>
+        <div class="time-box">อัปเดตล่าสุด: <span id="time">--</span></div>
+    </div>
+
+    <script>
+        // ⚠️ นำ URL ที่ได้จากการกด Deploy ของคุณมาวางแทนที่ลิงก์ด้านล่างนี้
+        const webAppUrl = 'https://script.google.com/macros/s/AKfycbwvghSxmA8CbOIe8o20UkmgSY3hwnBJNwL8P9sLENi6k7xfAE7tEqtxKvCjrFbLK5yE/exec';
+
+        async function updateDashboard() {
+            try {
+                const response = await fetch(webAppUrl);
+                const data = await response.json();
+                
+                if(data.length > 0) {
+                    const latest = data[data.length - 1];
+                    let totalVoltage = 0;
+                    
+                    for(let i = 1; i <= 8; i++) {
+                        let v = parseFloat(latest['m' + i]);
+                        document.getElementById('v' + i).innerText = isNaN(v) ? "--" : v.toFixed(2);
+                        if (!isNaN(v)) totalVoltage += v;
+                    }
+                    
+                    document.getElementById('total-v').innerText = totalVoltage.toFixed(2);
+                    const dateObj = new Date(latest.timestamp);
+                    document.getElementById('time').innerText = dateObj.toLocaleString('th-TH');
+                }
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            }
+        }
+
+        updateDashboard();
+        setInterval(updateDashboard, 10000); // อัปเดตอัตโนมัติทุกๆ 10 วินาที
+    </script>
+</body>
+</html>
