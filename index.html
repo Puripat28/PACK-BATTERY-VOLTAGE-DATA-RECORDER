@@ -1,76 +1,353 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Battery Monitor Dashboard</title>
-    <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; text-align: center; background-color: #f0f4f8; margin: 0; padding: 30px; }
-        h1 { color: #1a365d; margin-bottom: 5px; }
-        .subtitle { color: #4a5568; margin-bottom: 25px; }
-        .total-box { background: #fff; border-left: 5px solid #2b6cb0; display: inline-block; padding: 15px 40px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); font-size: 22px; font-weight: bold; color: #2d3748; margin-bottom: 30px; }
-        .container { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; max-width: 1000px; margin: 0 auto; }
-        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.04); border-top: 4px solid #3182ce; }
-        .card h3 { margin: 0 0 10px 0; color: #718096; font-size: 16px; }
-        .value { font-size: 28px; font-weight: bold; color: #2b6cb0; }
-        .unit { font-size: 14px; color: #a0aec0; margin-left: 3px; }
-        .time-box { margin-top: 40px; font-size: 13px; color: #718096; background: #edf2f7; display: inline-block; padding: 6px 16px; border-radius: 20px; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BMS Dashboard - 7 Modules & 2 Temps</title>
+  <!-- นำเข้าไลบรารีสำหรับทำกราฟ -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg-color: #f0f2f5;
+      --card-bg: #ffffff;
+      --text-main: #1f2937;
+      --text-sub: #4b5563;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      margin: 0;
+      padding: 20px;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    h1 { margin: 0; color: #111827; font-size: 28px; }
+    .update-time { color: var(--text-sub); font-size: 14px; margin-top: 5px; }
+
+    /* ส่วนแสดงผลสถานะหลัก */
+    .status-banner {
+      max-width: 1100px;
+      margin: 0 auto 25px auto;
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 15px 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+    }
+    .sys-status {
+      font-size: 24px;
+      font-weight: bold;
+      padding: 6px 20px;
+      border-radius: 30px;
+      color: #fff;
+      background-color: var(--success);
+    }
+    .total-volt {
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    /* แผงควบคุมแบ่งโซน */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 25px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    @media (max-width: 900px) {
+      .dashboard-grid { grid-template-columns: 1fr; }
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0 0 15px 0;
+      color: #374151;
+      border-left: 4px solid #3b82f6;
+      padding-left: 10px;
+    }
+    .temp-section-title {
+      border-left-color: #ed8936;
+    }
+    .main-panel { display: flex; flex-direction: column; gap: 25px; }
+
+    /* การจัดเรียงการ์ดแบตเตอรี่ 7 ช่อง */
+    .battery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 15px;
+    }
+    .card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 15px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      position: relative;
+      border-top: 4px solid #3b82f6;
+      text-align: center;
+    }
+    .card h3 { margin: 0 0 10px 0; font-size: 14px; color: var(--text-sub); }
+    .card .value { font-size: 24px; font-weight: bold; }
+    .card .unit { font-size: 13px; color: #9ca3af; margin-left: 2px; }
+
+    /* ไฟกระพริบเตือนสถานะเสี่ยง */
+    .alert-dot {
+      width: 10px;
+      height: 10px;
+      background-color: var(--success);
+      border-radius: 50%;
+      display: inline-block;
+      margin-top: 8px;
+    }
+    .blink {
+      animation: blinker 1s linear infinite;
+      background-color: var(--danger);
+      box-shadow: 0 0 8px var(--danger);
+    }
+    @keyframes blinker { 50% { opacity: 0; } }
+
+    /* การ์ดอุณหภูมิ */
+    .temp-panel { display: flex; flex-direction: column; gap: 15px; }
+    .temp-card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      border-left: 5px solid #ed8936;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .temp-card h4 { margin: 0; font-size: 15px; color: var(--text-sub); }
+    .temp-value { font-size: 26px; font-weight: bold; color: #1f2937; }
+
+    /* กล่องกราฟ */
+    .chart-container {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+    }
+  </style>
 </head>
 <body>
 
-    <h1>Battery Monitor System</h1>
-    <div class="subtitle">ระบบติดตามและวัดระดับแรงดันแบตเตอรี่ 8 โมดูล</div>
+  <div class="header">
+    <h1>BMS Real-Time Dashboard</h1>
+    <div class="update-time">อัปเดตล่าสุด: <span id="timestamp">กำลังโหลด...</span></div>
+  </div>
 
-    <div class="total-box">
-        แรงดันรวมระบบ (Total): <span id="total-v">--</span> V
-    </div>
-
-    <div class="container">
-        <div class="card"><h3>Module 1</h3><span id="v1" class="value">--</span><span class="unit">V</span></div>
-        <div class="card"><h3>Module 2</h3><span id="v2" class="value">--</span><span class="unit">V</span></div>
-        <div class="card"><h3>Module 3</h3><span id="v3" class="value">--</span><span class="unit">V</span></div>
-        <div class="card"><h3>Module 4</h3><span id="v4" class="value">--</span><span class="unit">V</span></div>
-        <div class="card"><h3>Module 5</h3><span id="v5" class="value">--</span><span class="unit">V</span></div>
-        <div class="card"><h3>Module 6</h3><span id="v6" class="value">--</span><span class="unit">V</span></div>
-        <div class="card"><h3>Module 7</h3><span id="v7" class="value">--</span><span class="unit">V</span></div>
-        <div class="card"><h3>Module 8</h3><span id="v8" class="value">--</span><span class="unit">V</span></div>
-    </div>
-
+  <!-- แถบสถานะระบบหลัก -->
+  <div class="status-banner">
     <div>
-        <div class="time-box">อัปเดตล่าสุด: <span id="time">--</span></div>
+      <span style="color: var(--text-sub); font-size: 14px;">STATUS OVERVIEW</span>
+      <div id="sys-status-text" class="sys-status">LOADING</div>
+    </div>
+    <div class="total-volt">
+      Total Voltage: <span id="total-v" style="color: #2563eb;">0.00</span> <span style="font-size: 16px; color:#9ca3af;">V</span>
+    </div>
+  </div>
+
+  <!-- โซนทำงานหลัก -->
+  <div class="dashboard-grid">
+    
+    <!-- ฝั่งซ้าย: แบตเตอรี่ และ กราฟโวลต์ -->
+    <div class="main-panel">
+      <div>
+        <div class="section-title">Voltage Modules (6.5V - 7.8V)</div>
+        <div class="battery-grid" id="battery-box">
+          <!-- การ์ด 7 โมดูลจะถูกสร้างอัตโนมัติที่นี่ -->
+        </div>
+      </div>
+
+      <div class="chart-container">
+        <div class="section-title">Voltage Compare Chart</div>
+        <canvas id="voltageChart" height="110"></canvas>
+      </div>
     </div>
 
-    <script>
-        // ⚠️ นำ URL ที่ได้จากการกด Deploy ของคุณมาวางแทนที่ลิงก์ด้านล่างนี้
-        const webAppUrl = 'https://script.google.com/macros/s/AKfycbwvghSxmA8CbOIe8o20UkmgSY3hwnBJNwL8P9sLENi6k7xfAE7tEqtxKvCjrFbLK5yE/exec';
+    <!-- ฝั่งขวา: โซนอุณหภูมิ และ กราฟอุณหภูมิ -->
+    <div class="main-panel">
+      <div>
+        <div class="section-title temp-section-title">Temperature (Max 55°C)</div>
+        <div class="temp-panel">
+          <div class="temp-card" id="t1-card">
+            <div>
+              <h4>Module 1 Temp</h4>
+              <div id="t1-dot" class="alert-dot"></div>
+            </div>
+            <div class="temp-value"><span id="t1">0.0</span><span style="font-size:16px; font-weight:normal; color:#9ca3af;"> °C</span></div>
+          </div>
+          
+          <div class="temp-card" id="t2-card">
+            <div>
+              <h4>Module 4 Temp</h4>
+              <div id="t2-dot" class="alert-dot"></div>
+            </div>
+            <div class="temp-value"><span id="t2">0.0</span><span style="font-size:16px; font-weight:normal; color:#9ca3af;"> °C</span></div>
+          </div>
+        </div>
+      </div>
 
-        async function updateDashboard() {
-            try {
-                const response = await fetch(webAppUrl);
-                const data = await response.json();
-                
-                if(data.length > 0) {
-                    const latest = data[data.length - 1];
-                    let totalVoltage = 0;
-                    
-                    for(let i = 1; i <= 8; i++) {
-                        let v = parseFloat(latest['m' + i]);
-                        document.getElementById('v' + i).innerText = isNaN(v) ? "--" : v.toFixed(2);
-                        if (!isNaN(v)) totalVoltage += v;
-                    }
-                    
-                    document.getElementById('total-v').innerText = totalVoltage.toFixed(2);
-                    const dateObj = new Date(latest.timestamp);
-                    document.getElementById('time').innerText = dateObj.toLocaleString('th-TH');
-                }
-            } catch (error) {
-                console.error("Error fetching data:", error);
+      <div class="chart-container">
+        <div class="section-title temp-section-title">Temperature Compare Chart</div>
+        <canvas id="tempChart" height="180"></canvas>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // ⚠️ วาง URL ของ Google Apps Script ของคุณในช่องนี้
+    const webAppUrl = "https://script.google.com/macros/s/AKfycbxWEvPqYEa9RR_JwNB5f0Y1wdqE-qcdBN9f5fCdYp4AyypNt0wFl8iMMjDXDpqccsqK/exec";
+
+    // สร้างกล่องการ์ด 7 ใบรอไว้ล่วงหน้า
+    const batteryBox = document.getElementById('battery-box');
+    for (let i = 1; i <= 7; i++) {
+      batteryBox.innerHTML += `
+        <div class="card" id="card-m${i}">
+          <h3>Module ${i}</h3>
+          <div class="value"><span id="m${i}">0.00</span><span class="unit">V</span></div>
+          <div class="alert-dot" id="dot-m${i}"></div>
+        </div>
+      `;
+    }
+
+    // 📊 1. ระบบกราฟแท่งแรงดันแบตเตอรี่ (7 ช่อง)
+    const ctxVolt = document.getElementById('voltageChart').getContext('2d');
+    const voltageChart = new Chart(ctxVolt, {
+      type: 'bar',
+      data: {
+        labels: ['M1', 'M2', 'M3', 'M4', 'M5', 'M6', 'M7'],
+        datasets: [{
+          label: 'Voltage (V)',
+          data: [0, 0, 0, 0, 0, 0, 0],
+          backgroundColor: 'rgba(59, 130, 246, 0.7)',
+          borderColor: 'rgba(59, 130, 246, 1)',
+          borderWidth: 1,
+          borderRadius: 5
+        }]
+      },
+      options: {
+        scales: { y: { min: 0, max: 10, ticks: { stepSize: 2 } } },
+        plugins: { legend: { display: false } }
+      }
+    });
+
+    // 📊 2. ระบบกราฟแท่งอุณหภูมิ (2 ช่อง)
+    const ctxTemp = document.getElementById('tempChart').getContext('2d');
+    const tempChart = new Chart(ctxTemp, {
+      type: 'bar',
+      data: {
+        labels: ['Module 1', 'Module 4'],
+        datasets: [{
+          label: 'Temperature (°C)',
+          data: [0, 0],
+          backgroundColor: 'rgba(237, 137, 54, 0.7)',
+          borderColor: 'rgba(237, 137, 54, 1)',
+          borderWidth: 1,
+          borderRadius: 5
+        }]
+      },
+      options: {
+        scales: { y: { min: 0, max: 80, ticks: { stepSize: 20 } } },
+        plugins: { legend: { display: false } }
+      }
+    });
+
+    function updateDashboard() {
+      fetch(webAppUrl)
+        .then(res => res.json())
+        .then(data => {
+          if (data && data.length > 0) {
+            const latest = data[0];
+            let totalVolt = 0;
+            let hasWarning = false;
+            let hasDanger = false;
+            let voltChartData = [];
+
+            // ตรวจสอบข้อมูลระดับโมดูลแบตเตอรี่ (7 โมดูล)
+            for (let i = 1; i <= 7; i++) {
+              let v = parseFloat(latest['m' + i]) || 0;
+              voltChartData.push(v);
+              totalVolt += v;
+
+              document.getElementById('m' + i).innerText = v.toFixed(2);
+              
+              let dot = document.getElementById('dot-m' + i);
+              let card = document.getElementById('card-m' + i);
+              
+              if (v < 6.5 || v > 7.8) {
+                dot.className = 'alert-dot blink';
+                card.style.borderTopColor = 'var(--danger)';
+                hasWarning = true;
+              } else {
+                dot.className = 'alert-dot';
+                card.style.borderTopColor = 'var(--3b82f6)';
+              }
             }
-        }
 
-        updateDashboard();
-        setInterval(updateDashboard, 10000); // อัปเดตอัตโนมัติทุกๆ 10 วินาที
-    </script>
+            // อัปเดตข้อมูลกราฟแรงดัน
+            document.getElementById('total-v').innerText = totalVolt.toFixed(2);
+            voltageChart.data.datasets[0].data = voltChartData;
+            voltageChart.update();
+
+            // ตรวจสอบค่าอุณหภูมิ (2 แชนเนล)
+            let temp1 = parseFloat(latest.t1) || 0;
+            let temp2 = parseFloat(latest.t2) || 0;
+
+            document.getElementById('t1').innerText = temp1.toFixed(1);
+            document.getElementById('t2').innerText = temp2.toFixed(1);
+
+            let t1Dot = document.getElementById('t1-dot');
+            let t2Dot = document.getElementById('t2-dot');
+            let t1Card = document.getElementById('t1-card');
+            let t2Card = document.getElementById('t2-card');
+
+            // อัปเดตและแจ้งเตือนอุณหภูมิเกิน 55°C
+            if (temp1 > 55) { t1Dot.className = 'alert-dot blink'; t1Card.style.borderLeftColor = 'var(--danger)'; hasDanger = true; } 
+            else { t1Dot.className = 'alert-dot'; t1Card.style.borderLeftColor = '#ed8936'; }
+
+            if (temp2 > 55) { t2Dot.className = 'alert-dot blink'; t2Card.style.borderLeftColor = 'var(--danger)'; hasDanger = true; } 
+            else { t2Dot.className = 'alert-dot'; t2Card.style.borderLeftColor = '#ed8936'; }
+
+            // อัปเดตข้อมูลกราฟอุณหภูมิ
+            tempChart.data.datasets[0].data = [temp1, temp2];
+            tempChart.update();
+
+            // ปรับป้ายสถานะหลัก OVERVIEW 
+            let statusText = document.getElementById('sys-status-text');
+            if (hasDanger) {
+              statusText.innerText = "DANGER";
+              statusText.style.backgroundColor = "var(--danger)";
+            } else if (hasWarning) {
+              statusText.innerText = "WARNING";
+              statusText.style.backgroundColor = "var(--warning)";
+            } else {
+              statusText.innerText = "NORMAL";
+              statusText.style.backgroundColor = "var(--success)";
+            }
+
+            // แสดงเวลาล่าสุดที่ได้รับข้อมูล
+            let timeObj = new Date(latest.timestamp);
+            document.getElementById('timestamp').innerText = timeObj.toLocaleString('th-TH');
+          }
+        })
+        .catch(err => console.error("Fetch Data Error: ", err));
+    }
+
+    // เริ่มระบบทำงานทันทีและอัปเดตทุกๆ 5 วินาที
+    updateDashboard();
+    setInterval(updateDashboard, 5000);
+  </script>
 </body>
 </html>
