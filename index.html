@@ -195,25 +195,29 @@
 
   function initGrids() {
     const vGrid = document.getElementById('voltage-grid');
-    vGrid.innerHTML = '';
-    for (let i = 1; i <= 35; i++) {
-      vGrid.innerHTML += `
-        <div class="card state-off" id="card-m${i}">
-          <div class="status-dot"></div>
-          <div class="label">Module ${i}</div>
-          <div class="val" id="val-m${i}">0.00 V</div>
-        </div>`;
+    if (vGrid) {
+      vGrid.innerHTML = '';
+      for (let i = 1; i <= 35; i++) {
+        vGrid.innerHTML += `
+          <div class="card state-off" id="card-m${i}">
+            <div class="status-dot"></div>
+            <div class="label">Module ${i}</div>
+            <div class="val" id="val-m${i}">0.00 V</div>
+          </div>`;
+      }
     }
 
     const tGrid = document.getElementById('temp-grid');
-    tGrid.innerHTML = '';
-    for (let i = 1; i <= 10; i++) {
-      tGrid.innerHTML += `
-        <div class="card state-off" id="card-t${i}">
-          <div class="status-dot"></div>
-          <div class="label">Temp ${i}</div>
-          <div class="val" id="val-t${i}">0.0 °C</div>
-        </div>`;
+    if (tGrid) {
+      tGrid.innerHTML = '';
+      for (let i = 1; i <= 10; i++) {
+        tGrid.innerHTML += `
+          <div class="card state-off" id="card-t${i}">
+            <div class="status-dot"></div>
+            <div class="label">Temp ${i}</div>
+            <div class="val" id="val-t${i}">0.0 °C</div>
+          </div>`;
+      }
     }
   }
 
@@ -221,33 +225,37 @@
     try {
       if (typeof Chart === 'undefined') return;
 
-      const vCtx = document.getElementById('voltageChart').getContext('2d');
-      vChart = new Chart(vCtx, {
-        type: 'bar',
-        data: {
-          labels: Array.from({length: 35}, (_, i) => `M${i+1}`),
-          datasets: [{ label: 'Voltage (V)', data: Array(35).fill(0), backgroundColor: '#38bdf8' }]
-        },
-        options: {
-          responsive: true,
-          plugins: { title: { display: true, text: 'Voltage Profile (M1 - M35)', color: '#f8fafc' } },
-          scales: { y: { beginAtZero: true, grid: { color: '#334155' } }, x: { grid: { display: false } } }
-        }
-      });
+      const vEl = document.getElementById('voltageChart');
+      if (vEl) {
+        vChart = new Chart(vEl.getContext('2d'), {
+          type: 'bar',
+          data: {
+            labels: Array.from({length: 35}, (_, i) => `M${i+1}`),
+            datasets: [{ label: 'Voltage (V)', data: Array(35).fill(0), backgroundColor: '#38bdf8' }]
+          },
+          options: {
+            responsive: true,
+            plugins: { title: { display: true, text: 'Voltage Profile (M1 - M35)', color: '#f8fafc' } },
+            scales: { y: { beginAtZero: true, grid: { color: '#334155' } }, x: { grid: { display: false } } }
+          }
+        });
+      }
 
-      const tCtx = document.getElementById('tempChart').getContext('2d');
-      tChart = new Chart(tCtx, {
-        type: 'bar',
-        data: {
-          labels: Array.from({length: 10}, (_, i) => `T${i+1}`),
-          datasets: [{ label: 'Temperature (°C)', data: Array(10).fill(0), backgroundColor: '#f97316' }]
-        },
-        options: {
-          responsive: true,
-          plugins: { title: { display: true, text: 'Temperature Profile (T1 - T10)', color: '#f8fafc' } },
-          scales: { y: { beginAtZero: true, grid: { color: '#334155' } }, x: { grid: { display: false } } }
-        }
-      });
+      const tEl = document.getElementById('tempChart');
+      if (tEl) {
+        tChart = new Chart(tEl.getContext('2d'), {
+          type: 'bar',
+          data: {
+            labels: Array.from({length: 10}, (_, i) => `T${i+1}`),
+            datasets: [{ label: 'Temperature (°C)', data: Array(10).fill(0), backgroundColor: '#f97316' }]
+          },
+          options: {
+            responsive: true,
+            plugins: { title: { display: true, text: 'Temperature Profile (T1 - T10)', color: '#f8fafc' } },
+            scales: { y: { beginAtZero: true, grid: { color: '#334155' } }, x: { grid: { display: false } } }
+          }
+        });
+      }
     } catch (e) {
       console.warn("Chart initialization skipped:", e);
     }
@@ -266,8 +274,10 @@
         throw new Error("ไม่พบข้อมูล timestamp");
       }
 
-      timeStampEl.style.color = "var(--text-sub)";
-      timeStampEl.innerText = new Date(latest.timestamp).toLocaleString('th-TH');
+      if (timeStampEl) {
+        timeStampEl.style.color = "var(--text-sub)";
+        timeStampEl.innerText = new Date(latest.timestamp).toLocaleString('th-TH');
+      }
 
       let totalV = 0;
       let activeCount = 0;
@@ -285,17 +295,14 @@
           vList.push(val);
           totalV += val;
           activeCount++;
-          valTxt.innerText = val.toFixed(2) + " V";
-          
-          if (val > 4.25 || val < 2.8) {
-            card.className = "card state-warn";
-          } else {
-            card.className = "card state-ok";
+          if (valTxt) valTxt.innerText = val.toFixed(2) + " V";
+          if (card) {
+            card.className = (val > 4.25 || val < 2.8) ? "card state-warn" : "card state-ok";
           }
         } else {
           vList.push(0);
-          valTxt.innerText = (val < 0) ? `${val.toFixed(2)} V` : "OFFLINE";
-          card.className = "card state-off";
+          if (valTxt) valTxt.innerText = (val < 0) ? `${val.toFixed(2)} V` : "OFFLINE";
+          if (card) card.className = "card state-off";
         }
       }
 
@@ -308,38 +315,41 @@
 
         if (!isNaN(val) && val !== 0 && val !== -999) {
           tList.push(val);
-          valTxt.innerText = val.toFixed(1) + " °C";
-          if (val > 55) {
-            card.className = "card state-warn";
-          } else {
-            card.className = "card state-ok";
+          if (valTxt) valTxt.innerText = val.toFixed(1) + " °C";
+          if (card) {
+            card.className = (val > 55) ? "card state-warn" : "card state-ok";
           }
         } else {
           tList.push(0);
-          valTxt.innerText = "OFFLINE";
-          card.className = "card state-off";
+          if (valTxt) valTxt.innerText = "OFFLINE";
+          if (card) card.className = "card state-off";
         }
       }
 
-      document.getElementById('total-voltage').innerText = totalV.toFixed(2);
-      document.getElementById('active-count').innerText = activeCount;
+      const totalVEl = document.getElementById('total-voltage');
+      if (totalVEl) totalVEl.innerText = totalV.toFixed(2);
+      
+      const activeCountEl = document.getElementById('active-count');
+      if (activeCountEl) activeCountEl.innerText = activeCount;
 
       if (vChart) { vChart.data.datasets[0].data = vList; vChart.update(); }
       if (tChart) { tChart.data.datasets[0].data = tList; tChart.update(); }
 
     } catch (err) {
       console.error("Fetch Data Error:", err);
-      timeStampEl.style.color = "#ef4444";
-      timeStampEl.innerText = "⚠️ Error: " + err.message;
+      if (timeStampEl) {
+        timeStampEl.style.color = "#ef4444";
+        timeStampEl.innerText = "⚠️ Error: " + err.message;
+      }
     }
   }
 
-  window.onload = () => {
+  document.addEventListener("DOMContentLoaded", () => {
     initGrids();
     initCharts();
     fetchData();
     setInterval(fetchData, 5000);
-  };
+  });
 </script>
 </body>
 </html>
