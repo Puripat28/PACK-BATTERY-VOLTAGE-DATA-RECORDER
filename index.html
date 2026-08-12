@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>28 Modules BMS Dashboard</title>
+  <title>Pack Battery Voltage Data Recorder Dashboard</title>
+  <!-- Chart.js สำหรับวาดกราฟ -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
@@ -11,145 +12,143 @@
       --card-bg: #1e293b;
       --text-main: #f8fafc;
       --text-sub: #94a3b8;
-      --green: #10b981;
-      --yellow: #f59e0b;
-      --orange: #f97316;
-      --red: #ef4444;
-      --primary: #3b82f6;
+      --accent-blue: #38bdf8;
+      --status-ok: #22c55e;
+      --status-warn: #ef4444;
+      --status-off: #64748b;
     }
+
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background-color: var(--bg-color);
       color: var(--text-main);
       margin: 0;
-      padding: 15px;
+      padding: 20px;
     }
-    .header { text-align: center; margin-bottom: 15px; }
-    h1 { margin: 0; color: #fff; font-size: 24px; }
-    .update-time { color: var(--text-sub); font-size: 13px; margin-top: 4px; }
 
-    /* แถบสรุปสถานะรวมด้านบน */
-    .status-banner {
+    .container {
       max-width: 1400px;
-      margin: 0 auto 15px auto;
-      background: var(--card-bg);
-      border-radius: 10px;
-      padding: 12px 20px;
+      margin: 0 auto;
+    }
+
+    header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3);
+      padding-bottom: 20px;
+      border-bottom: 1px solid #334155;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1.8rem;
+      color: var(--accent-blue);
+    }
+
+    .last-update {
+      font-size: 0.9rem;
+      color: var(--text-sub);
+    }
+
+    /* Total Summary Banner */
+    .summary-card {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
       border: 1px solid #334155;
-    }
-    .sys-status {
-      font-size: 16px;
-      font-weight: bold;
-      padding: 4px 16px;
-      border-radius: 15px;
-      color: #fff;
-      background-color: var(--green);
-    }
-    .total-volt { font-size: 18px; font-weight: bold; }
-
-    .main-container {
-      max-width: 1400px;
-      margin: 0 auto;
+      border-left: 6px solid var(--accent-blue);
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 25px;
       display: flex;
-      flex-direction: column;
-      gap: 20px;
+      justify-content: space-around;
+      align-items: center;
+      text-align: center;
     }
 
+    .summary-item .title {
+      font-size: 0.9rem;
+      color: var(--text-sub);
+      margin-bottom: 5px;
+    }
+
+    .summary-item .value {
+      font-size: 2.2rem;
+      font-weight: bold;
+      color: var(--accent-blue);
+    }
+
+    /* Grid Displays */
     .section-title {
-      font-size: 15px;
-      font-weight: 700;
-      margin-bottom: 12px;
+      font-size: 1.2rem;
+      margin-bottom: 15px;
       color: #e2e8f0;
-      border-left: 4px solid var(--primary);
+      border-left: 4px solid var(--accent-blue);
       padding-left: 10px;
     }
 
-    /* 🔋 ตารางแสดงแท่งแบตเตอรี่ 28 โมดูล (Grid 7 คอลัมน์) */
-    .battery-grid {
+    .grid-container {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-      gap: 10px;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 12px;
+      margin-bottom: 30px;
     }
-    .bat-card {
-      background: var(--card-bg);
+
+    .card {
+      background-color: var(--card-bg);
       border-radius: 8px;
-      padding: 10px;
+      padding: 12px;
       text-align: center;
       border: 1px solid #334155;
       position: relative;
-    }
-    .bat-card h3 { margin: 0 0 6px 0; font-size: 13px; color: var(--text-sub); }
-
-    /* โครงสร้างตัวแบตเตอรี่ */
-    .battery-icon {
-      width: 32px;
-      height: 55px;
-      border: 2px solid #64748b;
-      border-radius: 4px;
-      margin: 0 auto 6px auto;
-      position: relative;
-      padding: 1px;
-      background: #0f172a;
-    }
-    .battery-icon::before {
-      content: '';
-      position: absolute;
-      top: -5px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 12px;
-      height: 4px;
-      background: #64748b;
-      border-radius: 1px 1px 0 0;
-    }
-    .battery-level {
-      width: calc(100% - 2px);
-      height: 0%;
-      background-color: var(--green);
-      border-radius: 2px;
-      position: absolute;
-      bottom: 1px;
-      left: 1px;
-      transition: height 0.4s, background-color 0.4s;
+      transition: transform 0.2s;
     }
 
-    .bat-value { font-size: 15px; font-weight: bold; color: #fff; }
-    .bat-unit { font-size: 11px; color: var(--text-sub); }
+    .card:hover {
+      transform: translateY(-2px);
+    }
 
-    /* แท็กอุณหภูมิต่อท้ายแบตเตอรี่ */
-    .temp-badge {
-      margin-top: 6px;
-      padding: 3px 6px;
-      border-radius: 4px;
-      font-size: 12px;
+    .card .label {
+      font-size: 0.8rem;
+      color: var(--text-sub);
+      margin-bottom: 6px;
+    }
+
+    .card .val {
+      font-size: 1.2rem;
       font-weight: bold;
-      background-color: #0f172a;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
     }
-    .temp-dot {
+
+    /* Status Indicators */
+    .status-dot {
       width: 8px;
       height: 8px;
       border-radius: 50%;
-      display: inline-block;
+      position: absolute;
+      top: 8px;
+      right: 8px;
     }
 
-    /* กล่องกราฟ */
+    .state-ok { border-color: var(--status-ok); }
+    .state-ok .val { color: var(--status-ok); }
+    .state-ok .status-dot { background-color: var(--status-ok); box-shadow: 0 0 6px var(--status-ok); }
+
+    .state-warn { border-color: var(--status-warn); }
+    .state-warn .val { color: var(--status-warn); }
+    .state-warn .status-dot { background-color: var(--status-warn); box-shadow: 0 0 6px var(--status-warn); }
+
+    .state-off { border-color: var(--status-off); opacity: 0.6; }
+    .state-off .val { color: var(--status-off); }
+    .state-off .status-dot { background-color: var(--status-off); }
+
+    /* Chart Section */
     .charts-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 15px;
+      grid-template-columns: 1fr;
+      gap: 20px;
     }
-    @media (max-width: 900px) { .charts-grid { grid-template-columns: 1fr; } }
 
     .chart-box {
-      background: var(--card-bg);
+      background-color: var(--card-bg);
       border-radius: 10px;
       padding: 15px;
       border: 1px solid #334155;
@@ -158,199 +157,196 @@
 </head>
 <body>
 
-  <div class="header">
-    <h1>BMS Monitor Dashboard (28 Modules)</h1>
-    <div class="update-time">อัปเดตล่าสุด: <span id="timestamp">กำลังโหลด...</span></div>
-  </div>
-
-  <!-- สถานะภาพรวม -->
-  <div class="status-banner">
+<div class="container">
+  <header>
     <div>
-      <span style="color: var(--text-sub); font-size: 11px;">OVERVIEW STATUS</span>
-      <div id="sys-status-text" class="sys-status">LOADING</div>
+      <h1>Pack Battery Voltage Data Recorder</h1>
+      <div style="font-size: 0.85rem; color: var(--text-sub);">Real-time Battery Management & Monitoring System</div>
     </div>
-    <div class="total-volt">
-      Total Volt: <span id="total-v" style="color: var(--primary);">0.00</span> <span style="font-size: 12px; color:var(--text-sub);">V</span>
+    <div class="last-update">อัปเดตล่าสุด: <span id="time-stamp">กำลังดึงข้อมูล...</span></div>
+  </header>
+
+  <!-- สรุปแรงดันรวม -->
+  <div class="summary-card">
+    <div class="summary-item">
+      <div class="title">แรงดันรวมทั้งหมด (Total Pack Voltage)</div>
+      <div class="value"><span id="total-voltage">0.00</span> V</div>
+    </div>
+    <div class="summary-item">
+      <div class="title">สถานะระบบ (Active Modules)</div>
+      <div class="value" style="color: var(--text-main);"><span id="active-count">0</span> / 35</div>
     </div>
   </div>
 
-  <div class="main-container">
-    
-    <!-- แท่งแบตเตอรี่ทั้ง 28 โมดูล -->
-    <div>
-      <div class="section-title">28 Modules Real-Time Status</div>
-      <div class="battery-grid" id="battery-grid">
-        <!-- สร้าง 28 โมดูลด้วย JS -->
-      </div>
-    </div>
+  <!-- แรงดัน 35 โมดูล -->
+  <div class="section-title">แรงดันแต่ละโมดูล (35 Modules Voltage)</div>
+  <div class="grid-container" id="voltage-grid"></div>
 
-    <!-- โซนกราฟแท่งเปรียบเทียบ -->
-    <div class="charts-grid">
-      <div class="chart-box">
-        <div class="section-title">Voltage Compare Chart (28 Modules)</div>
-        <canvas id="voltageChart" height="130"></canvas>
-      </div>
-      <div class="chart-box">
-        <div class="section-title" style="border-left-color: var(--orange);">Temperature Compare Chart (28 Modules)</div>
-        <canvas id="tempChart" height="130"></canvas>
-      </div>
-    </div>
+  <!-- อุณหภูมิ 10 จุด -->
+  <div class="section-title">อุณหภูมิความร้อน (10 Temp Sensors)</div>
+  <div class="grid-container" id="temp-grid"></div>
 
+  <!-- แสดงกราฟ -->
+  <div class="charts-grid">
+    <div class="chart-box">
+      <canvas id="voltageChart" height="90"></canvas>
+    </div>
+    <div class="chart-box">
+      <canvas id="tempChart" height="80"></canvas>
+    </div>
   </div>
+</div>
 
-  <script>
-    // ⚠️ วาง URL ของ Google Apps Script ของคุณตรงนี้
-    const webAppUrl = "วาง_URL_ของ_Google_Apps_Script_ที่นี่";
+<script>
+  // ⚠️ วาง URL Google Apps Script Web App ของคุณที่นี่
+  const GAS_URL = "วาง_URL_ของ_Google_Apps_Script_ที่นี่";
 
-    // สร้างกล่องการ์ดแบตเตอรี่ 28 โมดูล
-    const batteryGrid = document.getElementById('battery-grid');
-    const moduleLabels = [];
-    
-    for (let i = 1; i <= 28; i++) {
-      moduleLabels.push('M' + i);
-      batteryGrid.innerHTML += `
-        <div class="bat-card">
-          <h3>Module ${i}</h3>
-          <div class="battery-icon">
-            <div class="battery-level" id="level-m${i}"></div>
-          </div>
-          <div class="bat-value"><span id="v-m${i}">0.00</span> <span class="bat-unit">V</span></div>
-          <div class="temp-badge">
-            <span class="temp-dot" id="tdot-m${i}"></span>
-            <span id="t-m${i}">0.0</span> <span style="font-size:10px; color:#94a3b8;">°C</span>
-          </div>
-        </div>
-      `;
+  let vChart, tChart;
+
+  // สร้างองค์ประกอบการ์ดเปล่าล่วงหน้า 35 V และ 10 T
+  function initGrids() {
+    const vGrid = document.getElementById('voltage-grid');
+    for (let i = 1; i <= 35; i++) {
+      vGrid.innerHTML += `
+        <div class="card state-off" id="card-m${i}">
+          <div class="status-dot"></div>
+          <div class="label">Module ${i}</div>
+          <div class="val" id="val-m${i}">0.00 V</div>
+        </div>`;
     }
 
-    // 📊 กราฟแรงดัน 28 แท่ง
-    const ctxVolt = document.getElementById('voltageChart').getContext('2d');
-    const voltageChart = new Chart(ctxVolt, {
+    const tGrid = document.getElementById('temp-grid');
+    for (let i = 1; i <= 10; i++) {
+      tGrid.innerHTML += `
+        <div class="card state-off" id="card-t${i}">
+          <div class="status-dot"></div>
+          <div class="label">Temp ${i}</div>
+          <div class="val" id="val-t${i}">0.0 °C</div>
+        </div>`;
+    }
+  }
+
+  // สร้างกราฟล่วงหน้า
+  function initCharts() {
+    const vCtx = document.getElementById('voltageChart').getContext('2d');
+    vChart = new Chart(vCtx, {
       type: 'bar',
       data: {
-        labels: moduleLabels,
+        labels: Array.from({length: 35}, (_, i) => `M${i+1}`),
         datasets: [{
           label: 'Voltage (V)',
-          data: Array(28).fill(0),
-          backgroundColor: 'rgba(59, 130, 246, 0.75)',
-          borderColor: 'rgba(59, 130, 246, 1)',
-          borderWidth: 1,
-          borderRadius: 2
+          data: Array(35).fill(0),
+          backgroundColor: '#38bdf8'
         }]
       },
       options: {
-        scales: { y: { min: 0, max: 10, ticks: { color: '#94a3b8' } }, x: { ticks: { color: '#94a3b8', font: { size: 9 } } } },
-        plugins: { legend: { display: false } }
+        responsive: true,
+        plugins: { title: { display: true, text: 'Voltage Profile (M1 - M35)', color: '#f8fafc' } },
+        scales: { y: { beginAtZero: true, grid: { color: '#334155' } }, x: { grid: { display: false } } }
       }
     });
 
-    // 📊 กราฟอุณหภูมิ 28 แท่ง
-    const ctxTemp = document.getElementById('tempChart').getContext('2d');
-    const tempChart = new Chart(ctxTemp, {
+    const tCtx = document.getElementById('tempChart').getContext('2d');
+    tChart = new Chart(tCtx, {
       type: 'bar',
       data: {
-        labels: moduleLabels,
+        labels: Array.from({length: 10}, (_, i) => `T${i+1}`),
         datasets: [{
-          label: 'Temp (°C)',
-          data: Array(28).fill(0),
-          backgroundColor: 'rgba(249, 115, 22, 0.75)',
-          borderColor: 'rgba(249, 115, 22, 1)',
-          borderWidth: 1,
-          borderRadius: 2
+          label: 'Temperature (°C)',
+          data: Array(10).fill(0),
+          backgroundColor: '#f97316'
         }]
       },
       options: {
-        scales: { y: { min: 0, max: 80, ticks: { color: '#94a3b8' } }, x: { ticks: { color: '#94a3b8', font: { size: 9 } } } },
-        plugins: { legend: { display: false } }
+        responsive: true,
+        plugins: { title: { display: true, text: 'Temperature Profile (T1 - T10)', color: '#f8fafc' } },
+        scales: { y: { beginAtZero: true, grid: { color: '#334155' } }, x: { grid: { display: false } } }
       }
     });
+  }
 
-    function updateDashboard() {
-      fetch(webAppUrl)
-        .then(res => res.json())
-        .then(data => {
-          if (data && data.length > 0) {
-            const latest = data[0];
-            let totalVolt = 0;
-            let hasYellow = false;
-            let hasRed = false;
-            
-            let voltDataArr = [];
-            let tempDataArr = [];
+  // ดึงข้อมูลจาก Google Sheets API
+  async function fetchData() {
+    try {
+      const response = await fetch(GAS_URL);
+      const result = await response.json();
 
-            for (let i = 1; i <= 28; i++) {
-              // อ่านค่า V1..V28 และ T1..T28 จาก Google Sheet
-              let v = parseFloat(latest['m' + i] || latest['v' + i]) || 0;
-              let t = parseFloat(latest['t' + i]) || 0;
+      if (result && result.length > 0) {
+        const latest = result[0];
+        document.getElementById('time-stamp').innerText = new Date(latest.timestamp).toLocaleString('th-TH');
 
-              voltDataArr.push(v);
-              tempDataArr.push(t);
-              totalVolt += v;
+        let totalV = 0;
+        let activeCount = 0;
+        let vList = [];
+        let tList = [];
 
-              // แสดงตัวเลข
-              document.getElementById('v-m' + i).innerText = v.toFixed(2);
-              document.getElementById('t-m' + i).innerText = t.toFixed(1);
+        // อัปเดตข้อมูลแรงดัน M1 - M35
+        for (let i = 1; i <= 35; i++) {
+          let val = parseFloat(latest[`m${i}`]) || 0;
+          vList.push(val);
+          const card = document.getElementById(`card-m${i}`);
+          const valTxt = document.getElementById(`val-m${i}`);
 
-              let level = document.getElementById('level-m' + i);
-              let tDot = document.getElementById('tdot-m' + i);
-
-              // 1. คำนวณเปอร์เซ็นต์ความสูงแบตเตอรี่ (เทียบสเกล 0V - 9.0V)
-              let pct = Math.min(Math.max((v / 9.0) * 100, 5), 100);
-              level.style.height = pct + '%';
-
-              // 2. เงื่อนไขสีแรงดัน
-              if (v >= 7.60 && v <= 8.40) {
-                level.style.backgroundColor = 'var(--green)';
-              } else if ((v >= 7.20 && v < 7.60) || (v > 8.40 && v <= 8.60)) {
-                level.style.backgroundColor = 'var(--yellow)';
-                hasYellow = true;
-              } else {
-                level.style.backgroundColor = 'var(--red)';
-                hasRed = true;
-              }
-
-              // 3. เงื่อนไขสีอุณหภูมิ
-              if (t >= 20 && t <= 40) {
-                tDot.style.backgroundColor = 'var(--green)';
-              } else if (t > 40 && t <= 50) {
-                tDot.style.backgroundColor = 'var(--orange)';
-                if (!hasRed) hasYellow = true;
-              } else {
-                tDot.style.backgroundColor = 'var(--red)';
-                hasRed = true;
-              }
-            }
-
-            // อัปเดต Total Voltage และ กราฟ
-            document.getElementById('total-v').innerText = totalVolt.toFixed(2);
-            voltageChart.data.datasets[0].data = voltDataArr;
-            voltageChart.update();
-
-            tempChart.data.datasets[0].data = tempDataArr;
-            tempChart.update();
-
-            // อัปเดตป้ายสถานะระบบ
-            let statusText = document.getElementById('sys-status-text');
-            if (hasRed) {
-              statusText.innerText = "DANGER / CRITICAL";
-              statusText.style.backgroundColor = "var(--red)";
-            } else if (hasYellow) {
-              statusText.innerText = "WARNING";
-              statusText.style.backgroundColor = "var(--yellow)";
+          if (val > 0) {
+            totalV += val;
+            activeCount++;
+            valTxt.innerText = val.toFixed(2) + " V";
+            // หากแรงดันผิดปกติ (เช่น สูงเกิน 4.25V หรือต่ำกว่า 2.8V) แสดงสีเตือน
+            if (val > 4.25 || val < 2.8) {
+              card.className = "card state-warn";
             } else {
-              statusText.innerText = "ALL SYSTEMS NORMAL";
-              statusText.style.backgroundColor = "var(--green)";
+              card.className = "card state-ok";
             }
-
-            let timeObj = new Date(latest.timestamp);
-            document.getElementById('timestamp').innerText = timeObj.toLocaleString('th-TH');
+          } else {
+            valTxt.innerText = "OFFLINE";
+            card.className = "card state-off";
           }
-        })
-        .catch(err => console.error("Fetch Data Error: ", err));
-    }
+        }
 
-    updateDashboard();
-    setInterval(updateDashboard, 5000); // ดึงข้อมูลใหม่ทุกๆ 5 วินาที
-  </script>
+        // อัปเดตข้อมูลอุณหภูมิ T1 - T10
+        for (let i = 1; i <= 10; i++) {
+          let val = parseFloat(latest[`t${i}`]) || 0;
+          tList.push(val);
+          const card = document.getElementById(`card-t${i}`);
+          const valTxt = document.getElementById(`val-t${i}`);
+
+          if (val > 0) {
+            valTxt.innerText = val.toFixed(1) + " °C";
+            if (val > 55) { // เตือนเมื่ออุณหภูมิเกิน 55°C
+              card.className = "card state-warn";
+            } else {
+              card.className = "card state-ok";
+            }
+          } else {
+            valTxt.innerText = "OFFLINE";
+            card.className = "card state-off";
+          }
+        }
+
+        // แสดงผลรวม
+        document.getElementById('total-voltage').innerText = totalV.toFixed(2);
+        document.getElementById('active-count').innerText = activeCount;
+
+        // อัปเดตข้อมูลลงกราฟ
+        vChart.data.datasets[0].data = vList;
+        vChart.update();
+
+        tChart.data.datasets[0].data = tList;
+        tChart.update();
+      }
+    } catch (err) {
+      console.error("Fetch Data Error:", err);
+    }
+  }
+
+  // เริ่มทำงานเมื่อโหลดหน้าเว็บ
+  window.onload = () => {
+    initGrids();
+    initCharts();
+    fetchData();
+    setInterval(fetchData, 5000); // อัปเดตอัตโนมัติทุกๆ 5 วินาที
+  };
+</script>
+
 </body>
 </html>
