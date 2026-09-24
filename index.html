@@ -1,355 +1,145 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pack Battery Voltage Data Recorder Dashboard</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    :root {
-      --bg-color: #0f172a;
-      --card-bg: #1e293b;
-      --text-main: #f8fafc;
-      --text-sub: #94a3b8;
-      --accent-blue: #38bdf8;
-      --status-ok: #22c55e;
-      --status-warn: #ef4444;
-      --status-off: #64748b;
-    }
-
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: var(--bg-color);
-      color: var(--text-main);
-      margin: 0;
-      padding: 20px;
-    }
-
-    .container {
-      max-width: 1400px;
-      margin: 0 auto;
-    }
-
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-bottom: 20px;
-      border-bottom: 1px solid #334155;
-      margin-bottom: 20px;
-    }
-
-    h1 {
-      margin: 0;
-      font-size: 1.8rem;
-      color: var(--accent-blue);
-    }
-
-    .last-update {
-      font-size: 0.9rem;
-      color: var(--text-sub);
-    }
-
-    .summary-card {
-      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-      border: 1px solid #334155;
-      border-left: 6px solid var(--accent-blue);
-      border-radius: 10px;
-      padding: 20px;
-      margin-bottom: 25px;
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      text-align: center;
-    }
-
-    .summary-item .title {
-      font-size: 0.9rem;
-      color: var(--text-sub);
-      margin-bottom: 5px;
-    }
-
-    .summary-item .value {
-      font-size: 2.2rem;
-      font-weight: bold;
-      color: var(--accent-blue);
-    }
-
-    .section-title {
-      font-size: 1.2rem;
-      margin-bottom: 15px;
-      color: #e2e8f0;
-      border-left: 4px solid var(--accent-blue);
-      padding-left: 10px;
-    }
-
-    .grid-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-      gap: 12px;
-      margin-bottom: 30px;
-    }
-
-    .card {
-      background-color: var(--card-bg);
-      border-radius: 8px;
-      padding: 12px;
-      text-align: center;
-      border: 1px solid #334155;
-      position: relative;
-      transition: transform 0.2s;
-    }
-
-    .card:hover {
-      transform: translateY(-2px);
-    }
-
-    .card .label {
-      font-size: 0.8rem;
-      color: var(--text-sub);
-      margin-bottom: 6px;
-    }
-
-    .card .val {
-      font-size: 1.2rem;
-      font-weight: bold;
-    }
-
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      position: absolute;
-      top: 8px;
-      right: 8px;
-    }
-
-    .state-ok { border-color: var(--status-ok); }
-    .state-ok .val { color: var(--status-ok); }
-    .state-ok .status-dot { background-color: var(--status-ok); box-shadow: 0 0 6px var(--status-ok); }
-
-    .state-warn { border-color: var(--status-warn); }
-    .state-warn .val { color: var(--status-warn); }
-    .state-warn .status-dot { background-color: var(--status-warn); box-shadow: 0 0 6px var(--status-warn); }
-
-    .state-off { border-color: var(--status-off); opacity: 0.6; }
-    .state-off .val { color: var(--status-off); }
-    .state-off .status-dot { background-color: var(--status-off); }
-
-    .charts-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 20px;
-    }
-
-    .chart-box {
-      background-color: var(--card-bg);
-      border-radius: 10px;
-      padding: 15px;
-      border: 1px solid #334155;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BESS Battery Monitoring Dashboard</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .card { border: none; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .status-badge { font-size: 1.1rem; padding: 8px 20px; border-radius: 50px; }
+        .module-card { background: #fff; border-left: 5px solid #0d6efd; transition: 0.3s; }
+        .module-card.warning { border-left-color: #ffc107; }
+        .module-card.danger { border-left-color: #dc3545; }
+    </style>
 </head>
 <body>
 
-<div class="container">
-  <header>
-    <div>
-      <h1>Pack Battery Voltage Data Recorder</h1>
-      <div style="font-size: 0.85rem; color: var(--text-sub);">Real-time Battery Management & Monitoring System</div>
+    <div class="container py-4">
+        <!-- Header -->
+        <div class="row mb-4 align-items-center">
+            <div class="col-md-8">
+                <h2 class="fw-bold text-dark">🔋 BESS Lab RMUTT - Battery Dashboard</h2>
+                <p class="text-muted mb-0">ระบบมอนิเตอร์แรงดันและอุณหภูมิแบตเตอรี่ 14 โมดูล (BMU-01 & BMU-02)</p>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <span id="systemStatus" class="badge bg-success status-badge">NORMAL</span>
+            </div>
+        </div>
+
+        <!-- Node 1 & Node 2 Modules (14 Modules) -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h4 class="fw-bold mb-3">⚡ แรงดันรายโมดูล (Module Voltages)</h4>
+            </div>
+            <!-- จะถูกสร้างอัตโนมัติด้วย JavaScript -->
+            <div id="moduleContainer" class="row g-3"></div>
+        </div>
+
+        <!-- Temperatures (6 Points) -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h4 class="fw-bold mb-3">🌡️ อุณหภูมิระบบ (Temperature Sensors)</h4>
+            </div>
+            <div id="tempContainer" class="row g-3"></div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="card p-4">
+                    <h5 class="fw-bold mb-3">📈 กราฟแรงดันโมดูล (Voltage Trend)</h5>
+                    <canvas id="voltageChart" height="150"></canvas>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card p-4">
+                    <h5 class="fw-bold mb-3">📉 กราฟอุณหภูมิ (Temperature Trend)</h5>
+                    <canvas id="tempChart" height="150"></canvas>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="last-update">อัปเดตล่าสุด: <span id="time-stamp">กำลังดึงข้อมูล...</span></div>
-  </header>
 
-  <div class="summary-card">
-    <div class="summary-item">
-      <div class="title">แรงดันรวมทั้งหมด (Total Pack Voltage)</div>
-      <div class="value"><span id="total-voltage">0.00</span> V</div>
-    </div>
-    <div class="summary-item">
-      <div class="title">สถานะระบบ (Active Modules)</div>
-      <div class="value" style="color: var(--text-main);"><span id="active-count">0</span> / 35</div>
-    </div>
-  </div>
+    <!-- JavaScript สำหรับดึงข้อมูลและสร้างกราฟ -->
+    <script>
+        // แทนที่ด้วย URL Web App ของ Google Apps Script ของคุณ
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwPwrfUgh1tFGT7YmXZEMPjAruVInk3cc17Ywppld8Wxsdc0YkKmdHkAdOhZd65jgcofQ/exec";
 
-  <div class="section-title">แรงดันแต่ละโมดูล (35 Modules Voltage)</div>
-  <div class="grid-container" id="voltage-grid"></div>
-
-  <div class="section-title">อุณหภูมิความร้อน (10 Temp Sensors)</div>
-  <div class="grid-container" id="temp-grid"></div>
-
-  <div class="charts-grid">
-    <div class="chart-box">
-      <canvas id="voltageChart" height="90"></canvas>
-    </div>
-    <div class="chart-box">
-      <canvas id="tempChart" height="80"></canvas>
-    </div>
-  </div>
-</div>
-
-<script>
-  const GAS_URL = "https://script.google.com/macros/s/AKfycbxk2d6zgwK11Xf3oWIborFVK6-1oQoqYFLrv0yXGC2pK0165WMmsW1AxCaeLLQOAovEJQ/exec";
-
-  let vChart = null, tChart = null;
-
-  function initGrids() {
-    const vGrid = document.getElementById('voltage-grid');
-    if (vGrid) {
-      vGrid.innerHTML = '';
-      for (let i = 1; i <= 35; i++) {
-        vGrid.innerHTML += `
-          <div class="card state-off" id="card-m${i}">
-            <div class="status-dot"></div>
-            <div class="label">Module ${i}</div>
-            <div class="val" id="val-m${i}">0.00 V</div>
-          </div>`;
-      }
-    }
-
-    const tGrid = document.getElementById('temp-grid');
-    if (tGrid) {
-      tGrid.innerHTML = '';
-      for (let i = 1; i <= 10; i++) {
-        tGrid.innerHTML += `
-          <div class="card state-off" id="card-t${i}">
-            <div class="status-dot"></div>
-            <div class="label">Temp ${i}</div>
-            <div class="val" id="val-t${i}">0.0 °C</div>
-          </div>`;
-      }
-    }
-  }
-
-  function initCharts() {
-    try {
-      if (typeof Chart === 'undefined') return;
-
-      const vEl = document.getElementById('voltageChart');
-      if (vEl) {
-        vChart = new Chart(vEl.getContext('2d'), {
-          type: 'bar',
-          data: {
-            labels: Array.from({length: 35}, (_, i) => `M${i+1}`),
-            datasets: [{ label: 'Voltage (V)', data: Array(35).fill(0), backgroundColor: '#38bdf8' }]
-          },
-          options: {
-            responsive: true,
-            plugins: { title: { display: true, text: 'Voltage Profile (M1 - M35)', color: '#f8fafc' } },
-            scales: { y: { beginAtZero: true, grid: { color: '#334155' } }, x: { grid: { display: false } } }
-          }
-        });
-      }
-
-      const tEl = document.getElementById('tempChart');
-      if (tEl) {
-        tChart = new Chart(tEl.getContext('2d'), {
-          type: 'bar',
-          data: {
-            labels: Array.from({length: 10}, (_, i) => `T${i+1}`),
-            datasets: [{ label: 'Temperature (°C)', data: Array(10).fill(0), backgroundColor: '#f97316' }]
-          },
-          options: {
-            responsive: true,
-            plugins: { title: { display: true, text: 'Temperature Profile (T1 - T10)', color: '#f8fafc' } },
-            scales: { y: { beginAtZero: true, grid: { color: '#334155' } }, x: { grid: { display: false } } }
-          }
-        });
-      }
-    } catch (e) {
-      console.warn("Chart initialization skipped:", e);
-    }
-  }
-
-  async function fetchData() {
-    const timeStampEl = document.getElementById('time-stamp');
-    try {
-      const response = await fetch(GAS_URL);
-      if (!response.ok) throw new Error(`HTTP Error Status: ${response.status}`);
-      
-      const rawData = await response.json();
-      const latest = Array.isArray(rawData) ? rawData[0] : rawData;
-
-      if (!latest || !latest.timestamp) {
-        throw new Error("ไม่พบข้อมูล timestamp");
-      }
-
-      if (timeStampEl) {
-        timeStampEl.style.color = "var(--text-sub)";
-        timeStampEl.innerText = new Date(latest.timestamp).toLocaleString('th-TH');
-      }
-
-      let totalV = 0;
-      let activeCount = 0;
-      let vList = [];
-      let tList = [];
-
-      for (let i = 1; i <= 35; i++) {
-        let rawVal = latest[`m${i}`];
-        let val = (rawVal !== undefined && rawVal !== null) ? parseFloat(rawVal) : NaN;
-        
-        const card = document.getElementById(`card-m${i}`);
-        const valTxt = document.getElementById(`val-m${i}`);
-
-        if (!isNaN(val) && val > 0) {
-          vList.push(val);
-          totalV += val;
-          activeCount++;
-          if (valTxt) valTxt.innerText = val.toFixed(2) + " V";
-          if (card) {
-            card.className = (val > 4.25 || val < 2.8) ? "card state-warn" : "card state-ok";
-          }
-        } else {
-          vList.push(0);
-          if (valTxt) valTxt.innerText = (val < 0) ? `${val.toFixed(2)} V` : "OFFLINE";
-          if (card) card.className = "card state-off";
+        // สร้างโครงสร้างการ์ดโมดูลและอุณหภูมิ
+        const moduleContainer = document.getElementById('moduleContainer');
+        for (let i = 1; i <= 14; i++) {
+            let nodeName = i <= 7 ? "Node 1 (BMU-01)" : "Node 2 (BMU-02)";
+            let modIdx = ((i - 1) % 7) + 1;
+            moduleContainer.innerHTML += `
+                <div class="col-md-3 col-sm-6">
+                    <div class="card module-card p-3">
+                        <small class="text-muted">${nodeName}</small>
+                        <h6 class="fw-bold mt-1">Module ${modIdx}</h6>
+                        <h3 class="text-primary mb-0"><span id="m${i}">0.000</span> <span class="fs-6">V</span></h3>
+                    </div>
+                </div>`;
         }
-      }
 
-      for (let i = 1; i <= 10; i++) {
-        let rawVal = latest[`t${i}`];
-        let val = (rawVal !== undefined && rawVal !== null) ? parseFloat(rawVal) : NaN;
-        
-        const card = document.getElementById(`card-t${i}`);
-        const valTxt = document.getElementById(`val-t${i}`);
-
-        if (!isNaN(val) && val !== 0 && val !== -999) {
-          tList.push(val);
-          if (valTxt) valTxt.innerText = val.toFixed(1) + " °C";
-          if (card) {
-            card.className = (val > 55) ? "card state-warn" : "card state-ok";
-          }
-        } else {
-          tList.push(0);
-          if (valTxt) valTxt.innerText = "OFFLINE";
-          if (card) card.className = "card state-off";
+        const tempContainer = document.getElementById('tempContainer');
+        const tempNames = ["Node 1: T1 (NTC1)", "Node 1: T4 (NTC4)", "Node 1: Room Temp", "Node 2: T1 (NTC1)", "Node 2: T4 (NTC4)", "Node 2: Room Temp"];
+        for (let i = 1; i <= 6; i++) {
+            tempContainer.innerHTML += `
+                <div class="col-md-4 col-sm-6">
+                    <div class="card p-3 border-start border-warning border-4">
+                        <small class="text-muted">${tempNames[i-1]}</small>
+                        <h3 class="text-danger mb-0 mt-1"><span id="t${i}">0.0</span> <span class="fs-6">°C</span></h3>
+                    </div>
+                </div>`;
         }
-      }
 
-      const totalVEl = document.getElementById('total-voltage');
-      if (totalVEl) totalVEl.innerText = totalV.toFixed(2);
-      
-      const activeCountEl = document.getElementById('active-count');
-      if (activeCountEl) activeCountEl.innerText = activeCount;
+        // ตั้งค่ากราฟ Chart.js
+        const ctxV = document.getElementById('voltageChart').getContext('2d');
+        const voltageChart = new Chart(ctxV, {
+            type: 'line',
+            data: { labels: [], datasets: [{ label: 'M1 Voltage (V)', data: [], borderColor: '#0d6efd', tension: 0.1 }] },
+            options: { responsive: true }
+        });
 
-      if (vChart) { vChart.data.datasets[0].data = vList; vChart.update(); }
-      if (tChart) { tChart.data.datasets[0].data = tList; tChart.update(); }
+        const ctxT = document.getElementById('tempChart').getContext('2d');
+        const tempChart = new Chart(ctxT, {
+            type: 'line',
+            data: { labels: [], datasets: [{ label: 'Node 1 T1 (°C)', data: [], borderColor: '#dc3545', tension: 0.1 }] },
+            options: { responsive: true }
+        });
 
-    } catch (err) {
-      console.error("Fetch Data Error:", err);
-      if (timeStampEl) {
-        timeStampEl.style.color = "#ef4444";
-        timeStampEl.innerText = "⚠️ Error: " + err.message;
-      }
-    }
-  }
+        // ฟังก์ชันดึงข้อมูลจาก Google Sheets (ผ่าน Apps Script)
+        async function fetchData() {
+            try {
+                let response = await fetch(WEB_APP_URL);
+                let data = await response.json(); // สมมติว่า Apps Script ส่งข้อมูล JSON แถวล่าสุดมา
+                
+                // อัปเดตค่าแรงดัน 14 โมดูล (Col C ถึง P ใน Google Sheets โดยประมาณ)
+                // สมมติว่าข้อมูลอาเรย์เรียงตามลำดับ: M1-M7(Node1), T1-T3(Node1), M1-M7(Node2), T1-T3(Node2), Status
+                if(data && data.values) {
+                    let vals = data.values;
+                    for (let i = 0; i < 14; i++) {
+                        document.getElementById(`m${i+1}`).innerText = parseFloat(vals[i]).toFixed(3);
+                    }
+                    for (let i = 0; i < 6; i++) {
+                        document.getElementById(`t${i+1}`).innerText = parseFloat(vals[14+i]).toFixed(1);
+                    }
+                    let status = vals[20];
+                    let badge = document.getElementById('systemStatus');
+                    badge.innerText = status;
+                    badge.className = "badge status-badge " + (status === "NORMAL" ? "bg-success" : (status === "WARNING" ? "bg-warning text-dark" : "bg-danger"));
+                }
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            }
+        }
 
-  document.addEventListener("DOMContentLoaded", () => {
-    initGrids();
-    initCharts();
-    fetchData();
-    setInterval(fetchData, 5000);
-  });
-</script>
+        // ดึงข้อมูลทุกๆ 3 วินาที
+        setInterval(fetchData, 3000);
+    </script>
 </body>
 </html>
