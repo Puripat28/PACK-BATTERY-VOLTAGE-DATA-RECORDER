@@ -17,8 +17,8 @@
         .status-badge { font-size: 1.1rem; padding: 10px 24px; border-radius: 50px; font-weight: bold; letter-spacing: 1px; }
         
         /* Sidebar Menu Styles */
-        .sidebar-card { background-color: #161e2e; border: 1px solid #2a364f; border-radius: 16px; padding: 20px; }
-        .nav-link-custom { display: block; padding: 12px 18px; color: #94a3b8; font-weight: 600; text-decoration: none; border-radius: 10px; margin-bottom: 8px; transition: all 0.2s; }
+        .sidebar-card { background-color: #161e2e; border: 1px solid #2a364f; border-radius: 16px; padding: 20px; position: sticky; top: 20px; }
+        .nav-link-custom { display: block; padding: 14px 18px; color: #94a3b8; font-weight: 600; text-decoration: none; border-radius: 10px; margin-bottom: 8px; transition: all 0.2s; }
         .nav-link-custom:hover { background-color: #1e293b; color: #38bdf8; }
         .nav-link-custom.active { background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #fff; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.4); }
 
@@ -50,7 +50,7 @@
         </div>
 
         <div class="row g-4">
-            <!-- Sidebar Navigation (เมนูด้านข้างสำหรับเลือกดู) -->
+            <!-- Sidebar Navigation (เมนูด้านข้าง) -->
             <div class="col-lg-3">
                 <div class="sidebar-card">
                     <h5 class="fw-bold text-white mb-3"><i class="fa-solid fa-bars-staggered text-info"></i> เมนูจัดการระบบ</h5>
@@ -71,7 +71,7 @@
             <!-- Main Content Area (พื้นที่แสดงผลเนื้อหา) -->
             <div class="col-lg-9">
                 
-                <!-- ================= TAB 1: OVERVIEW (หน้าหลัก แรงดันรวม + กราฟ) ================= -->
+                <!-- ================= TAB 1: OVERVIEW (หน้าหลักแบบเต็มจอ) ================= -->
                 <div id="section-overview" class="content-section active">
                     <!-- Total Voltage Summary Section -->
                     <div class="row mb-4">
@@ -95,18 +95,22 @@
                         </div>
                     </div>
 
-                    <!-- Charts Section -->
-                    <div class="row g-4">
-                        <div class="col-xl-6">
+                    <!-- Voltage Chart Section -->
+                    <div class="row mb-4">
+                        <div class="col-12">
                             <div class="card p-4">
                                 <h5 class="fw-bold mb-3 text-white"><i class="fa-solid fa-chart-line text-info"></i> เปรียบเทียบแรงดันทุกโมดูล (Voltage per Module)</h5>
-                                <canvas id="voltageChart" height="180"></canvas>
+                                <canvas id="voltageChart" height="110"></canvas>
                             </div>
                         </div>
-                        <div class="col-xl-6">
+                    </div>
+
+                    <!-- Temperature Chart Section -->
+                    <div class="row mb-4">
+                        <div class="col-12">
                             <div class="card p-4">
                                 <h5 class="fw-bold mb-3 text-white"><i class="fa-solid fa-chart-line text-success"></i> เปรียบเทียบอุณหภูมิทุกจุด (Temperature Sensors)</h5>
-                                <canvas id="tempChart" height="180"></canvas>
+                                <canvas id="tempChart" height="110"></canvas>
                             </div>
                         </div>
                     </div>
