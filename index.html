@@ -16,13 +16,14 @@
         .status-badge { font-size: 1.1rem; padding: 8px 20px; border-radius: 50px; }
         .module-card { transition: 0.3s; }
         
-        /* สไตล์ไอคอนแบตเตอรี่และอุณหภูมิ */
-        .metric-icon { font-size: 1.5rem; margin-right: 10px; }
+        /* สไตล์ไอคอนกราฟิกขนาดใหญ่ */
+        .custom-icon { width: 36px; height: 36px; flex-shrink: 0; }
+        
         .text-orange { color: #fd7e14 !important; }
         .text-green { color: #198754 !important; }
         .text-red { color: #dc3545 !important; }
         
-        .summary-card { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-left: 5px solid #0d6efd; }
+        .summary-card { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-left: 6px solid #0d6efd; }
     </style>
 </head>
 <body>
@@ -32,28 +33,27 @@
         <div class="row mb-4 align-items-center">
             <div class="col-md-8">
                 <h2 class="fw-bold text-white"><i class="fa-solid fa-car-battery text-primary"></i> BESS Lab RMUTT - Battery Dashboard</h2>
-                <p class="text-muted mb-0">ระบบมอนิเตอร์แรงดัน, แรงดันรวม และอุณหภูมิ (BMU-01 & BMU-02)</p>
+                <p class="text-muted mb-0">ระบบมอนิเตอร์แรงดันรวมและอุณหภูมิ (BMU-01 & BMU-02)</p>
             </div>
             <div class="col-md-4 text-md-end mt-3 mt-md-0">
                 <span id="systemStatus" class="badge bg-success status-badge">NORMAL</span>
             </div>
         </div>
 
-        <!-- Total Voltage Summary Section -->
+        <!-- Total Voltage Summary Section (รวมทั้งหมด 14 โมดูล) -->
         <div class="row mb-4">
             <div class="col-12">
-                <h4 class="fw-bold mb-3 text-info"><i class="fa-solid fa-gauge-high"></i> แรงดันรวมระบบ (Total Voltages)</h4>
+                <h4 class="fw-bold mb-3 text-info"><i class="fa-solid fa-gauge-high"></i> แรงดันรวมทั้งระบบ (Total System Voltage)</h4>
             </div>
-            <div class="col-md-6 mb-3">
-                <div class="card summary-card p-3">
-                    <small class="text-muted">Node 1 (BMU-01) Total Voltage</small>
-                    <h2 class="text-white mb-0 mt-1"><span id="node1Total">0.00</span> <span class="fs-5 text-muted">V</span></h2>
-                </div>
-            </div>
-            <div class="col-md-6 mb-3">
-                <div class="card summary-card p-3" style="border-left-color: #6610f2;">
-                    <small class="text-muted">Node 2 (BMU-02) Total Voltage</small>
-                    <h2 class="text-white mb-0 mt-1"><span id="node2Total">0.00</span> <span class="fs-5 text-muted">V</span></h2>
+            <div class="col-12">
+                <div class="card summary-card p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted text-uppercase fw-bold">Combined Voltage (Module 1 - 14)</small>
+                            <h1 class="text-white display-5 fw-bold mb-0 mt-1"><span id="systemTotalVoltage">0.00</span> <span class="fs-4 text-muted">V</span></h1>
+                        </div>
+                        <svg class="custom-icon" style="width: 50px; height: 50px;" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><line x1="22" y1="11" x2="22" y2="17"></line></svg>
+                    </div>
                 </div>
             </div>
         </div>
@@ -95,7 +95,6 @@
     <script>
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwPwrfUgh1tFGT7YmXZEMPjAruVInk3cc17Ywppld8Wxsdc0YkKmdHkAdOhZd65jgcofQ/exec";
 
-        // ตัวแปรเก็บประวัติสำหรับทำกราฟ (ให้กราฟขยับตามเวลาจริง)
         const maxDataPoints = 20;
         const timeLabels = [];
         const node1M1Data = [];
@@ -114,7 +113,7 @@
                                 <small class="text-muted">${nodeName}</small>
                                 <h6 class="fw-bold mt-1 mb-0">Module ${modIdx}</h6>
                             </div>
-                            <i id="m-icon-${i}" class="fa-solid fa-battery-half metric-icon text-secondary"></i>
+                            <div id="battery-svg-${i}"></div>
                         </div>
                         <h3 class="mb-0 mt-2"><span id="m${i}">0.000</span> <span class="fs-6 text-muted">V</span></h3>
                     </div>
@@ -133,14 +132,13 @@
                     <div class="card p-3">
                         <div class="d-flex justify-content-between align-items-center">
                             <small class="text-muted">${tempNames[i-1]}</small>
-                            <i id="t-icon-${i}" class="fa-solid fa-temperature-half metric-icon text-secondary"></i>
+                            <div id="temp-svg-${i}"></div>
                         </div>
                         <h3 class="mb-0 mt-2"><span id="t${i}">0.0</span> <span class="fs-6 text-muted">°C</span></h3>
                     </div>
                 </div>`;
         }
 
-        // ตั้งค่ากราฟ Chart.js (กำหนดสีเส้นและตัวหนังสือให้เข้ากับ Dark Theme)
         Chart.defaults.color = '#94a3b8';
         Chart.defaults.borderColor = '#334155';
 
@@ -164,34 +162,46 @@
             options: { responsive: true, scales: { y: { beginAtZero: false } } }
         });
 
-        // ฟังก์ชันอัปเดตสีไอคอนแบตเตอรี่ตามเงื่อนไขแรงดัน
-        function updateBatteryIcon(index, val) {
-            let icon = document.getElementById(`m-icon-${index}`);
-            if (!icon) return;
-            icon.className = "metric-icon fa-solid";
-            
+        // ฟังก์ชันสร้าง SVG รูปแบตเตอรี่ (ขนาดใหญ่ ชัดเจน เปลี่ยนสีตามเงื่อนไข)
+        function renderBatterySvg(index, val) {
+            let container = document.getElementById(`battery-svg-${index}`);
+            if (!container) return;
+
+            let fillColor = "#198754"; // สีเขียว (6.4 - 8.0 V)
             if (val < 6.3) {
-                icon.classList.add("fa-battery-quarter", "text-orange"); // ต่ำกว่า 6.3 = ส้ม
-            } else if (val >= 6.4 && val <= 8.0) {
-                icon.classList.add("fa-battery-full", "text-green");     // 6.4 - 8 = เขียว
+                fillColor = "#fd7e14"; // สีส้ม (< 6.3 V)
             } else if (val > 8.0) {
-                icon.classList.add("fa-battery-full", "text-red");       // 8 ขึ้นไป = แดง
-            } else {
-                icon.classList.add("fa-battery-half", "text-secondary");
+                fillColor = "#dc3545"; // สีแดง (> 8.0 V)
             }
+
+            container.innerHTML = `
+                <svg class="custom-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="6" y="3" width="12" height="2" rx="1" fill="#e9ecef"/>
+                    <rect x="4" y="5" width="16" height="16" rx="3" stroke="#e9ecef" stroke-width="2" fill="none"/>
+                    <rect x="7" y="8" width="10" height="3" rx="1" fill="${fillColor}"/>
+                    <rect x="7" y="12" width="10" height="3" rx="1" fill="${fillColor}"/>
+                    <rect x="7" y="16" width="10" height="3" rx="1" fill="${fillColor}"/>
+                </svg>
+            `;
         }
 
-        // ฟังก์ชันอัปเดตสีไอคอนอุณหภูมิตามเงื่อนไข
-        function updateTempIcon(index, val) {
-            let icon = document.getElementById(`t-icon-${index}`);
-            if (!icon) return;
-            icon.className = "metric-icon fa-solid fa-temperature-high";
-            
-            if (val <= 55.0) {
-                icon.classList.add("text-green"); // 0 - 55 = เขียว
-            } else {
-                icon.classList.add("text-red");   // 55 ขึ้นไป = แดง
+        // ฟังก์ชันสร้าง SVG รูปเทอร์โมมิเตอร์ (ขนาดใหญ่ ชัดเจน เปลี่ยนสีตามเงื่อนไข)
+        function renderTempSvg(index, val) {
+            let container = document.getElementById(`temp-svg-${index}`);
+            if (!container) return;
+
+            let fillColor = "#198754"; // สีเขียว (0 - 55 °C)
+            if (val > 55.0) {
+                fillColor = "#dc3545"; // สีแดง (> 55 °C)
             }
+
+            container.innerHTML = `
+                <svg class="custom-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2C10.3431 2 9 3.34315 9 5V14.5C7.89543 15.3954 7 16.7954 7 18.5C7 21.5376 9.46243 24 12.5 24C15.5376 24 18 21.5376 18 18.5C18 16.7954 17.1046 15.3954 16 14.5V5C16 3.34315 14.6569 2 13 2H12Z" stroke="#e9ecef" stroke-width="1.5" fill="none"/>
+                    <circle cx="12.5" cy="18.5" r="3.5" fill="${fillColor}"/>
+                    <rect x="11.25" y="8" width="2.5" height="8" fill="${fillColor}"/>
+                </svg>
+            `;
         }
 
         // ฟังก์ชันดึงข้อมูลจาก Google Sheets Web App
@@ -210,52 +220,49 @@
                         node1T1Data.shift();
                     }
 
+                    let totalSystemVoltage = 0;
+
                     // 1. แรงดัน Node 1 (โมดูล 1-7) -> Index 0 ถึง 6
-                    let node1Sum = 0;
                     for (let i = 0; i < 7; i++) {
                         let v = parseFloat(vals[i]) || 0;
-                        node1Sum += v;
+                        totalSystemVoltage += v;
                         document.getElementById(`m${i+1}`).innerText = v.toFixed(3);
-                        updateBatteryIcon(i+1, v);
+                        renderBatterySvg(i+1, v);
                         
-                        // เก็บค่าโมดูล 1 ของ Node 1 ไว้ทำกราฟ
                         if (i === 0) {
                             node1M1Data.push(v);
                         }
                     }
-                    document.getElementById('node1Total').innerText = node1Sum.toFixed(2);
 
-                    // 2. อุณหภูมิ Node 1 -> Index 7 ถึง 9
+                    // 2. อุณหภูมิ Node 1 (3 จุด) -> Index 7 ถึง 9
                     for (let i = 0; i < 3; i++) {
                         let t = parseFloat(vals[7 + i]) || 0;
                         document.getElementById(`t${i+1}`).innerText = t.toFixed(1);
-                        updateTempIcon(i+1, t);
+                        renderTempSvg(i+1, t);
                         if (i === 0) {
                             node1T1Data.push(t);
                         }
                     }
 
-                    // 3. อุณหภูมิ Node 2 -> Index 10 ถึง 12
+                    // 3. อุณหภูมิ Node 2 (3 จุด) -> Index 10 ถึง 12
                     for (let i = 0; i < 3; i++) {
                         let t = parseFloat(vals[10 + i]) || 0;
                         document.getElementById(`t${i+4}`).innerText = t.toFixed(1);
-                        updateTempIcon(i+4, t);
+                        renderTempSvg(i+4, t);
                     }
 
                     // 4. แรงดัน Node 2 (โมดูล 1-7) -> Index 13 ถึง 19
-                    let node2Sum = 0;
                     for (let i = 0; i < 7; i++) {
                         let v = parseFloat(vals[13 + i]) || 0;
-                        node2Sum += v;
+                        totalSystemVoltage += v;
                         document.getElementById(`m${i+8}`).innerText = v.toFixed(3);
-                        updateBatteryIcon(i+8, v);
+                        renderBatterySvg(i+8, v);
                     }
-                    document.getElementById('node2Total').innerText = node2Sum.toFixed(2);
 
-                    // เพิ่มเวลาลงในกราฟ
+                    // แสดงผลแรงดันรวมทั้งหมด 14 โมดูล
+                    document.getElementById('systemTotalVoltage').innerText = totalSystemVoltage.toFixed(2);
+
                     timeLabels.push(nowTime);
-
-                    // อัปเดตข้อมูลกราฟ
                     voltageChart.update();
                     tempChart.update();
 
@@ -270,7 +277,6 @@
             }
         }
 
-        // ดึงข้อมูลอัตโนมัติทุกๆ 3 วินาที
         setInterval(fetchData, 3000);
         fetchData();
     </script>
