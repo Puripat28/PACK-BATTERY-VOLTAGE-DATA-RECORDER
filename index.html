@@ -18,7 +18,7 @@
         /* ป้ายสถานะตัวหนังสือใหญ่พิเศษ */
         .status-badge { font-size: 2rem !important; padding: 15px 40px; border-radius: 50px; font-weight: bold; letter-spacing: 1px; }
         
-        /* ปรับเมนูด้านซ้ายให้กะทัดรัด ไม่กินพื้นที่ และขยายตัวหนังสือเมนู */
+        /* เมนูด้านซ้าย */
         .sidebar-card { background-color: #161e2e; border: 1px solid #2a364f; border-radius: 16px; padding: 20px 15px; position: sticky; top: 20px; }
         .nav-link-custom { display: block; padding: 18px 20px; color: #94a3b8; font-size: 1.5rem !important; font-weight: 700; text-decoration: none; border-radius: 12px; margin-bottom: 12px; transition: all 0.2s; }
         .nav-link-custom:hover { background-color: #1e293b; color: #38bdf8; }
@@ -52,7 +52,6 @@
             </div>
         </div>
 
-        <!-- จัดสัดส่วนใหม่: เมนูด้านซ้ายเล็กลง (col-lg-2) เพื่อให้ฝั่งขวาขยายเต็มจอ (col-lg-10) -->
         <div class="row g-4">
             <!-- Sidebar Navigation -->
             <div class="col-lg-3 col-xl-2">
@@ -72,7 +71,7 @@
                 </div>
             </div>
 
-            <!-- Main Content Area (ขยายเต็มพื้นที่ฝั่งขวาแบบจุใจ) -->
+            <!-- Main Content Area -->
             <div class="col-lg-9 col-xl-10">
                 
                 <!-- ================= TAB 1: OVERVIEW ================= -->
@@ -230,7 +229,7 @@
 
         Chart.defaults.color = '#e2e8f0';
         Chart.defaults.borderColor = '#2a364f';
-        Chart.defaults.font.size = 20; // ขยายขนาดตัวหนังสือในกราฟให้ใหญ่ชัดเจนสะใจ
+        Chart.defaults.font.size = 20;
 
         // กราฟแรงดัน
         const ctxV = document.getElementById('voltageChart').getContext('2d');
@@ -268,12 +267,16 @@
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
         });
 
+        // ฟังก์ชันกำหนดสีแบตเตอรี่ตามเงื่อนไข (ต่ำกว่า 6.3 = ส้ม, 6.4-8 = เขียว, 8 ขึ้นไป = แดง)
         function renderBatterySvg(index, val) {
             let container = document.getElementById(`battery-svg-${index}`);
             if (!container) return;
-            let fillColor = "#22c55e"; 
-            if (val < 6.3) fillColor = "#f97316"; 
-            else if (val > 8.0) fillColor = "#ef4444"; 
+            let fillColor = "#22c55e"; // ค่าเริ่มต้น สีเขียว
+            if (val < 6.3) {
+                fillColor = "#f97316"; // สีส้ม
+            } else if (val > 8.0) {
+                fillColor = "#ef4444"; // สีแดง
+            }
 
             container.innerHTML = `
                 <svg class="large-graphic" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -285,11 +288,14 @@
                 </svg>`;
         }
 
+        // ฟังก์ชันกำหนดสีอุณหภูมิ (0-55 = เขียว, 55 ขึ้นไป = แดง)
         function renderTempSvg(index, val) {
             let container = document.getElementById(`temp-svg-${index}`);
             if (!container) return;
-            let fillColor = "#22c55e"; 
-            if (val > 55.0) fillColor = "#ef4444"; 
+            let fillColor = "#22c55e"; // สีเขียว
+            if (val >= 55.0) {
+                fillColor = "#ef4444"; // สีแดง
+            }
 
             container.innerHTML = `
                 <svg class="large-graphic" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
