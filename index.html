@@ -21,7 +21,7 @@
         .large-graphic { width: 55px; height: 55px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5)); }
         .summary-graphic { width: 70px; height: 70px; }
         
-        .summary-card { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-left: 8px solid #06b6d4; border: 1px solid #334155; }
+        .summary-card { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-left: 8px solid #38bdf8; border: 1px solid #334155; }
         .value-display { font-size: 1.8rem; font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
         .unit-label { font-size: 1.1rem; font-weight: 600; color: #94a3b8; margin-left: 4px; }
     </style>
@@ -75,23 +75,23 @@
         <!-- Temperatures (6 Points) -->
         <div class="row mb-4">
             <div class="col-12">
-                <h4 class="fw-bold mb-3 text-danger"><i class="fa-solid fa-temperature-three-quarters"></i> อุณหภูมิระบบ (Temperature Sensors)</h4>
+                <h4 class="fw-bold mb-3 text-info"><i class="fa-solid fa-temperature-three-quarters"></i> อุณหภูมิระบบ (Temperature Sensors)</h4>
             </div>
             <div id="tempContainer" class="row g-3"></div>
         </div>
 
-        <!-- Charts Section -->
+        <!-- Charts Section (Comparison Charts) -->
         <div class="row g-4">
             <div class="col-lg-6">
                 <div class="card p-4">
-                    <h5 class="fw-bold mb-3 text-white"><i class="fa-solid fa-chart-line text-info"></i> กราฟแรงดันโมดูล (Voltage Trend)</h5>
-                    <canvas id="voltageChart" height="150"></canvas>
+                    <h5 class="fw-bold mb-3 text-white"><i class="fa-solid fa-chart-line text-info"></i> เปรียบเทียบแรงดันทุกโมดูล (Voltage per Module)</h5>
+                    <canvas id="voltageChart" height="160"></canvas>
                 </div>
             </div>
             <div class="col-lg-6">
                 <div class="card p-4">
-                    <h5 class="fw-bold mb-3 text-white"><i class="fa-solid fa-chart-line text-danger"></i> กราฟอุณหภูมิ (Temperature Trend)</h5>
-                    <canvas id="tempChart" height="150"></canvas>
+                    <h5 class="fw-bold mb-3 text-white"><i class="fa-solid fa-chart-line text-success"></i> เปรียบเทียบอุณหภูมิทุกจุด (Temperature Sensors)</h5>
+                    <canvas id="tempChart" height="160"></canvas>
                 </div>
             </div>
         </div>
@@ -99,12 +99,7 @@
 
     <!-- JavaScript สำหรับดึงข้อมูลและแสดงผล -->
     <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyN_ARCfWBU2rMRyGyDsUXYHFFL5bFOfJgiAKF6-P5pcn2P49reaiWjL5LWSY5tYpkd2g/exec";
-
-        const maxDataPoints = 20;
-        const timeLabels = [];
-        const node1M1Data = [];
-        const node1T1Data = [];
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzMJSQ33DXkOCwlnRGGfxDv76KnLj-m7uSzZxqUT4qIBolxFicxZsqzASDMVDe_23W9sA/exec";
 
         // สร้างโครงสร้างการ์ดโมดูลแรงดัน (14 โมดูล)
         const moduleContainer = document.getElementById('moduleContainer');
@@ -147,24 +142,54 @@
         Chart.defaults.color = '#94a3b8';
         Chart.defaults.borderColor = '#2a364f';
 
+        // ตั้งค่ากราฟแรงดันเปรียบเทียบ 14 โมดูล (สีฟ้าเรืองแสง)
         const ctxV = document.getElementById('voltageChart').getContext('2d');
         const voltageChart = new Chart(ctxV, {
-            type: 'line',
+            type: 'bar', // ใช้ Bar Chart หรือ Line Chart ก็ได้เพื่อให้เห็นเปรียบเทียบชัดเจน
             data: { 
-                labels: timeLabels, 
-                datasets: [{ label: 'Node 1 - M1 Voltage (V)', data: node1M1Data, borderColor: '#06b6d4', backgroundColor: 'rgba(6, 182, 212, 0.1)', tension: 0.3, fill: true, borderWidth: 3 }] 
+                labels: Array.from({length: 14}, (_, i) => `M${i+1}`), 
+                datasets: [{ 
+                    label: 'Voltage (V)', 
+                    data: Array(14).fill(0), 
+                    backgroundColor: 'rgba(56, 189, 248, 0.7)', 
+                    borderColor: '#38bdf8', 
+                    borderWidth: 2,
+                    borderRadius: 6
+                }] 
             },
-            options: { responsive: true, scales: { y: { beginAtZero: false } } }
+            options: { 
+                responsive: true, 
+                plugins: { legend: { display: false } },
+                scales: { 
+                    y: { beginAtZero: false, title: { display: true, text: 'Voltage (V)', color: '#38bdf8' } },
+                    x: { title: { display: true, text: 'Modules (1 - 14)', color: '#94a3b8' } }
+                } 
+            }
         });
 
+        // ตั้งค่ากราฟอุณหภูมิเปรียบเทียบ 6 จุด (สีเขียวมรกตเรืองแสง)
         const ctxT = document.getElementById('tempChart').getContext('2d');
         const tempChart = new Chart(ctxT, {
-            type: 'line',
+            type: 'bar', 
             data: { 
-                labels: timeLabels, 
-                datasets: [{ label: 'Node 1 - T1 (°C)', data: node1T1Data, borderColor: '#f43f5e', backgroundColor: 'rgba(244, 63, 94, 0.1)', tension: 0.3, fill: true, borderWidth: 3 }] 
+                labels: ['N1-T1', 'N1-T4', 'N1-Room', 'N2-T1', 'N2-T4', 'N2-Room'], 
+                datasets: [{ 
+                    label: 'Temperature (°C)', 
+                    data: Array(6).fill(0), 
+                    backgroundColor: 'rgba(52, 211, 153, 0.7)', 
+                    borderColor: '#34d399', 
+                    borderWidth: 2,
+                    borderRadius: 6
+                }] 
             },
-            options: { responsive: true, scales: { y: { beginAtZero: false } } }
+            options: { 
+                responsive: true, 
+                plugins: { legend: { display: false } },
+                scales: { 
+                    y: { beginAtZero: true, title: { display: true, text: 'Temperature (°C)', color: '#34d399' } },
+                    x: { title: { display: true, text: 'Temperature Sensors', color: '#94a3b8' } }
+                } 
+            }
         });
 
         // ฟังก์ชันสร้างไอคอนแบตเตอรี่ด้านบน
@@ -172,11 +197,11 @@
             let container = document.getElementById(`battery-svg-${index}`);
             if (!container) return;
 
-            let fillColor = "#22c55e"; // สีเขียวสด
+            let fillColor = "#38bdf8"; // สีฟ้าสว่างเรืองแสง
             if (val < 6.3) {
-                fillColor = "#f97316"; // สีส้มสด
+                fillColor = "#facc15"; // สีเหลืองทองสว่าง
             } else if (val > 8.0) {
-                fillColor = "#ef4444"; // สีแดงสด
+                fillColor = "#c084fc"; // สีม่วงสว่าง (เลี่ยงสีแดง)
             }
 
             container.innerHTML = `
@@ -195,9 +220,9 @@
             let container = document.getElementById(`temp-svg-${index}`);
             if (!container) return;
 
-            let fillColor = "#22c55e"; // สีเขียวสด (0 - 55 °C)
+            let fillColor = "#34d399"; // สีเขียวสว่างเรืองแสง
             if (val > 55.0) {
-                fillColor = "#ef4444"; // สีแดงสด (> 55 °C)
+                fillColor = "#f472b6"; // สีชมพูสว่างเรืองแสง (เลี่ยงสีแดง)
             }
 
             container.innerHTML = `
@@ -212,7 +237,7 @@
             `;
         }
 
-        // ฟังก์ชันดึงข้อมูลจาก Google Sheets Web App (แก้ไขการจับคู่ Index อุณหภูมิและแรงดันให้ถูกต้องตรงกัน)
+        // ฟังก์ชันดึงข้อมูลจาก Google Sheets Web App และอัปเดตกราฟเปรียบเทียบ
         async function fetchData() {
             try {
                 let response = await fetch(WEB_APP_URL);
@@ -220,15 +245,10 @@
                 
                 if(data && data.values) {
                     let vals = data.values;
-                    
-                    let nowTime = new Date().toLocaleTimeString();
-                    if (timeLabels.length >= maxDataPoints) {
-                        timeLabels.shift();
-                        node1M1Data.shift();
-                        node1T1Data.shift();
-                    }
-
                     let totalSystemVoltage = 0;
+                    
+                    let vData = [];
+                    let tData = [];
 
                     // 1. แรงดัน Node 1 (โมดูล 1-7) -> Index 0 ถึง 6
                     for (let i = 0; i < 7; i++) {
@@ -236,10 +256,7 @@
                         totalSystemVoltage += v;
                         document.getElementById(`m${i+1}`).innerText = v.toFixed(3);
                         renderBatterySvg(i+1, v);
-                        
-                        if (i === 0) {
-                            node1M1Data.push(v);
-                        }
+                        vData.push(v);
                     }
 
                     // 2. อุณหภูมิ Node 1 (3 จุด: T1, T4, Room) -> Index 7, 8, 9
@@ -247,9 +264,7 @@
                         let t = parseFloat(vals[7 + i]) || 0;
                         document.getElementById(`t${i+1}`).innerText = t.toFixed(1);
                         renderTempSvg(i+1, t);
-                        if (i === 0) {
-                            node1T1Data.push(t);
-                        }
+                        tData.push(t);
                     }
 
                     // 3. แรงดัน Node 2 (โมดูล 1-7) -> Index 10 ถึง 16
@@ -258,6 +273,7 @@
                         totalSystemVoltage += v;
                         document.getElementById(`m${i+8}`).innerText = v.toFixed(3);
                         renderBatterySvg(i+8, v);
+                        vData.push(v);
                     }
 
                     // 4. อุณหภูมิ Node 2 (3 จุด: T1, T4, Room) -> Index 17, 18, 19
@@ -265,13 +281,17 @@
                         let t = parseFloat(vals[17 + i]) || 0;
                         document.getElementById(`t${i+4}`).innerText = t.toFixed(1);
                         renderTempSvg(i+4, t);
+                        tData.push(t);
                     }
 
                     // แสดงผลแรงดันรวมทั้งระบบ (14 โมดูล)
                     document.getElementById('systemTotalVoltage').innerText = totalSystemVoltage.toFixed(2);
 
-                    timeLabels.push(nowTime);
+                    // อัปเดตข้อมูลลงกราฟเปรียบเทียบ
+                    voltageChart.data.datasets[0].data = vData;
                     voltageChart.update();
+
+                    tempChart.data.datasets[0].data = tData;
                     tempChart.update();
 
                     // 5. แสดงสถานะระบบ -> Index 20
