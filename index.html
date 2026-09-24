@@ -16,13 +16,12 @@
         .card:hover { border-color: #38bdf8; }
         .status-badge { font-size: 1.1rem; padding: 10px 24px; border-radius: 50px; font-weight: bold; letter-spacing: 1px; }
         
-        /* Sidebar Menu Styles */
-        .sidebar-card { background-color: #161e2e; border: 1px solid #2a364f; border-radius: 16px; padding: 20px; position: sticky; top: 20px; }
-        .nav-link-custom { display: block; padding: 14px 18px; color: #94a3b8; font-weight: 600; text-decoration: none; border-radius: 10px; margin-bottom: 8px; transition: all 0.2s; }
+        /* Sidebar Menu Styles - ขยายให้ยาวลงมาเต็มจอ */
+        .sidebar-card { background-color: #161e2e; border: 1px solid #2a364f; border-radius: 16px; padding: 25px 20px; min-height: 80vh; display: flex; flex-direction: column; }
+        .nav-link-custom { display: block; padding: 14px 18px; color: #94a3b8; font-weight: 600; text-decoration: none; border-radius: 10px; margin-bottom: 12px; transition: all 0.2s; }
         .nav-link-custom:hover { background-color: #1e293b; color: #38bdf8; }
         .nav-link-custom.active { background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #fff; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.4); }
 
-        /* ขนาดไอคอนกราฟิกด้านบนตัวเลข */
         .icon-top-container { display: flex; justify-content: center; align-items: center; margin-bottom: 8px; min-height: 55px; }
         .large-graphic { width: 55px; height: 55px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5)); }
         .summary-graphic { width: 70px; height: 70px; }
@@ -50,10 +49,10 @@
         </div>
 
         <div class="row g-4">
-            <!-- Sidebar Navigation (เมนูด้านข้าง) -->
+            <!-- Sidebar Navigation (เมนูด้านข้างที่ขยายยาวลงมา) -->
             <div class="col-lg-3">
                 <div class="sidebar-card">
-                    <h5 class="fw-bold text-white mb-3"><i class="fa-solid fa-bars-staggered text-info"></i> เมนูจัดการระบบ</h5>
+                    <h5 class="fw-bold text-white mb-4"><i class="fa-solid fa-bars-staggered text-info"></i> เมนูจัดการระบบ</h5>
                     <div class="nav flex-column">
                         <a href="#" class="nav-link-custom active" onclick="switchTab('overview', event)">
                             <i class="fa-solid fa-house-chimney me-2"></i> หน้าหลัก (ภาพรวม & กราฟ)
@@ -71,16 +70,15 @@
             <!-- Main Content Area (พื้นที่แสดงผลเนื้อหา) -->
             <div class="col-lg-9">
                 
-                <!-- ================= TAB 1: OVERVIEW (หน้าหลักแบบเต็มจอ) ================= -->
+                <!-- ================= TAB 1: OVERVIEW (หน้าหลักจัดเต็มจอ) ================= -->
                 <div id="section-overview" class="content-section active">
                     <!-- Total Voltage Summary Section -->
                     <div class="row mb-4">
                         <div class="col-12">
-                            <h4 class="fw-bold mb-3 text-info"><i class="fa-solid fa-gauge-high"></i> แรงดันรวมทั้งระบบ (Total System Voltage)</h4>
                             <div class="card summary-card p-4">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
-                                        <span class="badge bg-info text-dark mb-2 px-3 py-1 fw-bold">COMBINED VOLTAGE (MODULE 1 - 14)</span>
+                                        <span class="badge bg-info text-dark mb-2 px-3 py-1 fw-bold">แรงดันรวมทั้งระบบ (COMBINED VOLTAGE MODULE 1 - 14)</span>
                                         <h1 class="text-white display-3 fw-bold mb-0 mt-1"><span id="systemTotalVoltage">0.00</span> <span class="fs-2 text-info">V</span></h1>
                                     </div>
                                     <div>
@@ -95,22 +93,22 @@
                         </div>
                     </div>
 
-                    <!-- Voltage Chart Section -->
-                    <div class="row mb-4">
-                        <div class="col-12">
-                            <div class="card p-4">
-                                <h5 class="fw-bold mb-3 text-white"><i class="fa-solid fa-chart-line text-info"></i> เปรียบเทียบแรงดันทุกโมดูล (Voltage per Module)</h5>
-                                <canvas id="voltageChart" height="110"></canvas>
+                    <!-- Charts Section: แบ่งครึ่งซ้าย-ขวา สมดุลเต็มจอ -->
+                    <div class="row g-4">
+                        <div class="col-xl-6 col-lg-12">
+                            <div class="card p-4 h-100">
+                                <h5 class="fw-bold mb-3 text-white"><i class="fa-solid fa-chart-line text-info"></i> แรงดันต่อโมดูล (Voltage per Module)</h5>
+                                <div style="position: relative; height: 280px;">
+                                    <canvas id="voltageChart"></canvas>
+                                </div>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Temperature Chart Section -->
-                    <div class="row mb-4">
-                        <div class="col-12">
-                            <div class="card p-4">
-                                <h5 class="fw-bold mb-3 text-white"><i class="fa-solid fa-chart-line text-success"></i> เปรียบเทียบอุณหภูมิทุกจุด (Temperature Sensors)</h5>
-                                <canvas id="tempChart" height="110"></canvas>
+                        <div class="col-xl-6 col-lg-12">
+                            <div class="card p-4 h-100">
+                                <h5 class="fw-bold mb-3 text-white"><i class="fa-solid fa-chart-line text-success"></i> อุณหภูมิแต่ละจุด (Temperature Sensors)</h5>
+                                <div style="position: relative; height: 280px;">
+                                    <canvas id="tempChart"></canvas>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -119,7 +117,6 @@
                 <!-- ================= TAB 2: BMU-01 ================= -->
                 <div id="section-bmu1" class="content-section">
                     <h4 class="fw-bold mb-3 text-warning"><i class="fa-solid fa-bolt"></i> รายละเอียดชุดอุปกรณ์ BMU-01</h4>
-                    
                     <h5 class="text-secondary fw-semibold mb-3">แรงดันรายโมดูล (Module Voltages - BMU-01)</h5>
                     <div id="bmu1ModuleContainer" class="row g-3 mb-4"></div>
 
@@ -130,7 +127,6 @@
                 <!-- ================= TAB 3: BMU-02 ================= -->
                 <div id="section-bmu2" class="content-section">
                     <h4 class="fw-bold mb-3 text-info"><i class="fa-solid fa-bolt"></i> รายละเอียดชุดอุปกรณ์ BMU-02</h4>
-                    
                     <h5 class="text-secondary fw-semibold mb-3">แรงดันรายโมดูล (Module Voltages - BMU-02)</h5>
                     <div id="bmu2ModuleContainer" class="row g-3 mb-4"></div>
 
@@ -146,7 +142,6 @@
     <script>
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyF_z19W9rp74Mm0AkHInejEiqs21nqpjj1-7gpckxK6H0Oq3h31Uhp10mm879XjJ19vw/exec";
 
-        // ฟังก์ชันสลับหน้าต่าง (Tabs)
         function switchTab(tabId, event) {
             event.preventDefault();
             document.querySelectorAll('.content-section').forEach(el => el.classList.remove('active'));
@@ -242,7 +237,7 @@
                     borderRadius: 6
                 }] 
             },
-            options: { responsive: true, plugins: { legend: { display: false } } }
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
         });
 
         // กราฟอุณหภูมิ
@@ -260,10 +255,9 @@
                     borderRadius: 6
                 }] 
             },
-            options: { responsive: true, plugins: { legend: { display: false } } }
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
         });
 
-        // เงื่อนไขสีไอคอนแบตเตอรี่ (เขียวปกติ, ส้ม <6.3, แดง >8.0)
         function renderBatterySvg(index, val) {
             let container = document.getElementById(`battery-svg-${index}`);
             if (!container) return;
@@ -281,7 +275,6 @@
                 </svg>`;
         }
 
-        // เงื่อนไขสีไอคอนอุณหภูมิ (เขียวปกติ, แดง >55°C)
         function renderTempSvg(index, val) {
             let container = document.getElementById(`temp-svg-${index}`);
             if (!container) return;
@@ -296,7 +289,6 @@
                 </svg>`;
         }
 
-        // ดึงข้อมูลจาก Google Sheets
         async function fetchData() {
             try {
                 let response = await fetch(WEB_APP_URL);
