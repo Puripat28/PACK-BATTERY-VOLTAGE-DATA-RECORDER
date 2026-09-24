@@ -76,7 +76,6 @@
                 
                 <!-- ================= TAB 1: OVERVIEW ================= -->
                 <div id="section-overview" class="content-section active">
-                    <!-- Total Voltage Summary Section -->
                     <div class="row mb-4">
                         <div class="col-12">
                             <div class="card summary-card p-4">
@@ -97,26 +96,20 @@
                         </div>
                     </div>
 
-                    <!-- Voltage Chart Section -->
                     <div class="row mb-4">
                         <div class="col-12">
                             <div class="card p-4">
                                 <h2 class="fw-bold mb-3 text-white display-6"><i class="fa-solid fa-chart-line text-info"></i> แรงดันต่อโมดูล (Voltage per Module)</h2>
-                                <div style="position: relative; height: 450px;">
-                                    <canvas id="voltageChart"></canvas>
-                                </div>
+                                <div style="position: relative; height: 450px;"><canvas id="voltageChart"></canvas></div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Temperature Chart Section -->
                     <div class="row mb-4">
                         <div class="col-12">
                             <div class="card p-4">
                                 <h2 class="fw-bold mb-3 text-white display-6"><i class="fa-solid fa-chart-line text-success"></i> อุณหภูมิแต่ละจุด (Temperature Sensors)</h2>
-                                <div style="position: relative; height: 450px;">
-                                    <canvas id="tempChart"></canvas>
-                                </div>
+                                <div style="position: relative; height: 450px;"><canvas id="tempChart"></canvas></div>
                             </div>
                         </div>
                     </div>
@@ -125,6 +118,17 @@
                 <!-- ================= TAB 2: BMU-01 ================= -->
                 <div id="section-bmu1" class="content-section">
                     <h2 class="fw-bold mb-3 text-warning display-5"><i class="fa-solid fa-bolt"></i> รายละเอียดชุดอุปกรณ์ BMU-01</h2>
+                    
+                    <!-- กราฟเส้นสำหรับ BMU-01 -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card p-4">
+                                <h3 class="fw-bold mb-3 text-info fs-3"><i class="fa-solid fa-chart-line"></i> กราฟแนวโน้มแรงดันและอุณหภูมิ (BMU-01)</h3>
+                                <div style="position: relative; height: 350px;"><canvas id="bmu1LineChart"></canvas></div>
+                            </div>
+                        </div>
+                    </div>
+
                     <h3 class="text-secondary fw-semibold mb-3 display-6">แรงดันรายโมดูล (Module Voltages - BMU-01)</h3>
                     <div id="bmu1ModuleContainer" class="row g-4 mb-4"></div>
 
@@ -135,6 +139,17 @@
                 <!-- ================= TAB 3: BMU-02 ================= -->
                 <div id="section-bmu2" class="content-section">
                     <h2 class="fw-bold mb-3 text-info display-5"><i class="fa-solid fa-bolt"></i> รายละเอียดชุดอุปกรณ์ BMU-02</h2>
+                    
+                    <!-- กราฟเส้นสำหรับ BMU-02 -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card p-4">
+                                <h3 class="fw-bold mb-3 text-info fs-3"><i class="fa-solid fa-chart-line"></i> กราฟแนวโน้มแรงดันและอุณหภูมิ (BMU-02)</h3>
+                                <div style="position: relative; height: 350px;"><canvas id="bmu2LineChart"></canvas></div>
+                            </div>
+                        </div>
+                    </div>
+
                     <h3 class="text-secondary fw-semibold mb-3 display-6">แรงดันรายโมดูล (Module Voltages - BMU-02)</h3>
                     <div id="bmu2ModuleContainer" class="row g-4 mb-4"></div>
 
@@ -146,7 +161,7 @@
         </div>
     </div>
 
-    <!-- JavaScript สำหรับจัดการหน้าต่างและข้อมูล -->
+    <!-- JavaScript -->
     <script>
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyF_z19W9rp74Mm0AkHInejEiqs21nqpjj1-7gpckxK6H0Oq3h31Uhp10mm879XjJ19vw/exec";
 
@@ -229,54 +244,71 @@
 
         Chart.defaults.color = '#e2e8f0';
         Chart.defaults.borderColor = '#2a364f';
-        Chart.defaults.font.size = 20;
+        Chart.defaults.font.size = 18;
 
-        // กราฟแรงดัน
+        // กราฟหน้าหลัก (แรงดัน)
         const ctxV = document.getElementById('voltageChart').getContext('2d');
         const voltageChart = new Chart(ctxV, {
             type: 'bar',
-            data: { 
-                labels: Array.from({length: 14}, (_, i) => `M${i+1}`), 
-                datasets: [{ 
-                    label: 'Voltage (V)', 
-                    data: Array(14).fill(0), 
-                    backgroundColor: 'rgba(56, 189, 248, 0.85)', 
-                    borderColor: '#38bdf8', 
-                    borderWidth: 2,
-                    borderRadius: 8
-                }] 
-            },
+            data: { labels: Array.from({length: 14}, (_, i) => `M${i+1}`), datasets: [{ label: 'Voltage (V)', data: Array(14).fill(0), backgroundColor: 'rgba(56, 189, 248, 0.85)', borderColor: '#38bdf8', borderWidth: 2, borderRadius: 8 }] },
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
         });
 
-        // กราฟอุณหภูมิ
+        // กราฟหน้าหลัก (อุณหภูมิ)
         const ctxT = document.getElementById('tempChart').getContext('2d');
         const tempChart = new Chart(ctxT, {
             type: 'bar', 
-            data: { 
-                labels: ['N1-T1', 'N1-T4', 'N1-Room', 'N2-T1', 'N2-T4', 'N2-Room'], 
-                datasets: [{ 
-                    label: 'Temperature (°C)', 
-                    data: Array(6).fill(0), 
-                    backgroundColor: 'rgba(52, 211, 153, 0.85)', 
-                    borderColor: '#34d399', 
-                    borderWidth: 2,
-                    borderRadius: 8
-                }] 
+            data: { labels: ['N1-T1', 'N1-T4', 'N1-Room', 'N2-T1', 'N2-T4', 'N2-Room'], datasets: [{ label: 'Temperature (°C)', data: Array(6).fill(0), backgroundColor: 'rgba(52, 211, 153, 0.85)', borderColor: '#34d399', borderWidth: 2, borderRadius: 8 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+
+        // กราฟเส้น BMU-01
+        const ctxBmu1Line = document.getElementById('bmu1LineChart').getContext('2d');
+        const bmu1LineChart = new Chart(ctxBmu1Line, {
+            type: 'line',
+            data: {
+                labels: ['M1', 'M2', 'M3', 'M4', 'M5', 'M6', 'M7', 'T1', 'T4', 'Room'],
+                datasets: [{
+                    label: 'BMU-01 Values',
+                    data: Array(10).fill(0),
+                    borderColor: '#38bdf8',
+                    backgroundColor: 'rgba(56, 189, 248, 0.2)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 6
+                }]
             },
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
         });
 
-        // ฟังก์ชันกำหนดสีแบตเตอรี่ตามเงื่อนไข (ต่ำกว่า 6.3 = ส้ม, 6.4-8 = เขียว, 8 ขึ้นไป = แดง)
+        // กราฟเส้น BMU-02
+        const ctxBmu2Line = document.getElementById('bmu2LineChart').getContext('2d');
+        const bmu2LineChart = new Chart(ctxBmu2Line, {
+            type: 'line',
+            data: {
+                labels: ['M1', 'M2', 'M3', 'M4', 'M5', 'M6', 'M7', 'T1', 'T4', 'Room'],
+                datasets: [{
+                    label: 'BMU-02 Values',
+                    data: Array(10).fill(0),
+                    borderColor: '#34d399',
+                    backgroundColor: 'rgba(52, 211, 153, 0.2)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 6
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+
+        // ฟังก์ชันสีแบตเตอรี่ (ต่ำกว่า 6.3 = ส้ม, 6.4-8 = เขียว, 8 ขึ้นไป = แดง)
         function renderBatterySvg(index, val) {
             let container = document.getElementById(`battery-svg-${index}`);
             if (!container) return;
-            let fillColor = "#22c55e"; // ค่าเริ่มต้น สีเขียว
-            if (val < 6.3) {
-                fillColor = "#f97316"; // สีส้ม
-            } else if (val > 8.0) {
-                fillColor = "#ef4444"; // สีแดง
-            }
+            let fillColor = "#22c55e"; 
+            if (val < 6.3) fillColor = "#f97316"; 
+            else if (val > 8.0) fillColor = "#ef4444"; 
 
             container.innerHTML = `
                 <svg class="large-graphic" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -288,14 +320,12 @@
                 </svg>`;
         }
 
-        // ฟังก์ชันกำหนดสีอุณหภูมิ (0-55 = เขียว, 55 ขึ้นไป = แดง)
+        // ฟังก์ชันสีอุณหภูมิ (0-55 = เขียว, 55 ขึ้นไป = แดง)
         function renderTempSvg(index, val) {
             let container = document.getElementById(`temp-svg-${index}`);
             if (!container) return;
-            let fillColor = "#22c55e"; // สีเขียว
-            if (val >= 55.0) {
-                fillColor = "#ef4444"; // สีแดง
-            }
+            let fillColor = "#22c55e"; 
+            if (val >= 55.0) fillColor = "#ef4444"; 
 
             container.innerHTML = `
                 <svg class="large-graphic" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -314,6 +344,7 @@
                     let vals = data.values;
                     let totalSystemVoltage = 0;
                     let vData = [], tData = [];
+                    let bmu1Vals = [], bmu2Vals = [];
 
                     for (let i = 0; i < 7; i++) {
                         let v = parseFloat(vals[i]) || 0;
@@ -321,12 +352,14 @@
                         document.getElementById(`m${i+1}`).innerText = v.toFixed(3);
                         renderBatterySvg(i+1, v);
                         vData.push(v);
+                        bmu1Vals.push(v);
                     }
                     for (let i = 0; i < 3; i++) {
                         let t = parseFloat(vals[7 + i]) || 0;
                         document.getElementById(`t${i+1}`).innerText = t.toFixed(1);
                         renderTempSvg(i+1, t);
                         tData.push(t);
+                        bmu1Vals.push(t);
                     }
                     for (let i = 0; i < 7; i++) {
                         let v = parseFloat(vals[10 + i]) || 0;
@@ -334,19 +367,28 @@
                         document.getElementById(`m${i+8}`).innerText = v.toFixed(3);
                         renderBatterySvg(i+8, v);
                         vData.push(v);
+                        bmu2Vals.push(v);
                     }
                     for (let i = 0; i < 3; i++) {
                         let t = parseFloat(vals[17 + i]) || 0;
                         document.getElementById(`t${i+4}`).innerText = t.toFixed(1);
                         renderTempSvg(i+4, t);
                         tData.push(t);
+                        bmu2Vals.push(t);
                     }
 
                     document.getElementById('systemTotalVoltage').innerText = totalSystemVoltage.toFixed(2);
+                    
                     voltageChart.data.datasets[0].data = vData;
                     voltageChart.update();
                     tempChart.data.datasets[0].data = tData;
                     tempChart.update();
+
+                    bmu1LineChart.data.datasets[0].data = bmu1Vals;
+                    bmu1LineChart.update();
+
+                    bmu2LineChart.data.datasets[0].data = bmu2Vals;
+                    bmu2LineChart.update();
 
                     let status = vals[20] || "NORMAL";
                     let badge = document.getElementById('systemStatus');
