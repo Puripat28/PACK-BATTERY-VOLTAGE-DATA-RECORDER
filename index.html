@@ -11,24 +11,28 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { background-color: #0b0f19; color: #f8fafc; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #0b0f19; color: #f8fafc; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 1.2rem; }
         .card { background-color: #1a2234; border: 1px solid #2a364f; border-radius: 16px; box-shadow: 0 8px 16px rgba(0,0,0,0.4); color: #fff; transition: transform 0.2s; }
         .card:hover { border-color: #38bdf8; }
-        .status-badge { font-size: 1.1rem; padding: 10px 24px; border-radius: 50px; font-weight: bold; letter-spacing: 1px; }
         
-        /* Sidebar Menu Styles - ขยายให้ยาวลงมาเต็มจอ */
-        .sidebar-card { background-color: #161e2e; border: 1px solid #2a364f; border-radius: 16px; padding: 25px 20px; min-height: 80vh; display: flex; flex-direction: column; }
-        .nav-link-custom { display: block; padding: 14px 18px; color: #94a3b8; font-weight: 600; text-decoration: none; border-radius: 10px; margin-bottom: 12px; transition: all 0.2s; }
+        /* ขยายป้ายสถานะให้ตัวหนังสือใหญ่สะใจ */
+        .status-badge { font-size: 1.5rem !important; padding: 12px 30px; border-radius: 50px; font-weight: bold; letter-spacing: 1px; }
+        
+        /* Sidebar Menu Styles - ขยายตัวหนังสือเมนูให้ใหญ่ขึ้นมาก */
+        .sidebar-card { background-color: #161e2e; border: 1px solid #2a364f; border-radius: 16px; padding: 25px 20px; min-height: 85vh; display: flex; flex-direction: column; }
+        .nav-link-custom { display: block; padding: 18px 22px; color: #94a3b8; font-size: 1.3rem !important; font-weight: 700; text-decoration: none; border-radius: 12px; margin-bottom: 14px; transition: all 0.2s; }
         .nav-link-custom:hover { background-color: #1e293b; color: #38bdf8; }
         .nav-link-custom.active { background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #fff; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.4); }
 
-        .icon-top-container { display: flex; justify-content: center; align-items: center; margin-bottom: 8px; min-height: 55px; }
-        .large-graphic { width: 55px; height: 55px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5)); }
-        .summary-graphic { width: 70px; height: 70px; }
+        .icon-top-container { display: flex; justify-content: center; align-items: center; margin-bottom: 8px; min-height: 65px; }
+        .large-graphic { width: 65px; height: 65px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5)); }
+        .summary-graphic { width: 90px; height: 90px; }
         
-        .summary-card { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-left: 8px solid #38bdf8; border: 1px solid #334155; }
-        .value-display { font-size: 1.8rem; font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
-        .unit-label { font-size: 1.1rem; font-weight: 600; color: #94a3b8; margin-left: 4px; }
+        .summary-card { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-left: 10px solid #38bdf8; border: 1px solid #334155; }
+        
+        /* ขยายขนาดตัวเลขค่าแรงดันและอุณหภูมิในการ์ดโมดูลให้ใหญ่ที่สุด */
+        .value-display { font-size: 2.8rem !important; font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.4); }
+        .unit-label { font-size: 1.5rem !important; font-weight: 800; color: #94a3b8; margin-left: 6px; }
         
         .content-section { display: none; }
         .content-section.active { display: block; }
@@ -40,8 +44,8 @@
         <!-- Header -->
         <div class="row mb-4 align-items-center">
             <div class="col-md-8">
-                <h2 class="fw-bold text-white"><i class="fa-solid fa-car-battery text-info"></i> BESS Lab RMUTT - Battery Dashboard</h2>
-                <p class="text-secondary mb-0">ระบบมอนิเตอร์แรงดันและอุณหภูมิแบบเรียลไทม์</p>
+                <h1 class="fw-bold text-white display-5"><i class="fa-solid fa-car-battery text-info"></i> BESS Lab RMUTT - Battery Dashboard</h1>
+                <p class="text-secondary fs-4 mb-0">ระบบมอนิเตอร์แรงดันและอุณหภูมิแบบเรียลไทม์</p>
             </div>
             <div class="col-md-4 text-md-end mt-3 mt-md-0">
                 <span id="systemStatus" class="badge bg-success status-badge">NORMAL</span>
@@ -49,10 +53,10 @@
         </div>
 
         <div class="row g-4">
-            <!-- Sidebar Navigation (เมนูด้านข้างที่ขยายยาวลงมา) -->
+            <!-- Sidebar Navigation -->
             <div class="col-lg-3">
                 <div class="sidebar-card">
-                    <h5 class="fw-bold text-white mb-4"><i class="fa-solid fa-bars-staggered text-info"></i> เมนูจัดการระบบ</h5>
+                    <h3 class="fw-bold text-white mb-4 fs-2"><i class="fa-solid fa-bars-staggered text-info"></i> เมนูจัดการระบบ</h3>
                     <div class="nav flex-column">
                         <a href="#" class="nav-link-custom active" onclick="switchTab('overview', event)">
                             <i class="fa-solid fa-house-chimney me-2"></i> หน้าหลัก (ภาพรวม & กราฟ)
@@ -67,10 +71,10 @@
                 </div>
             </div>
 
-            <!-- Main Content Area (พื้นที่แสดงผลเนื้อหา) -->
+            <!-- Main Content Area -->
             <div class="col-lg-9">
                 
-                <!-- ================= TAB 1: OVERVIEW (หน้าหลักจัดเต็มจอ) ================= -->
+                <!-- ================= TAB 1: OVERVIEW ================= -->
                 <div id="section-overview" class="content-section active">
                     <!-- Total Voltage Summary Section -->
                     <div class="row mb-4">
@@ -78,8 +82,8 @@
                             <div class="card summary-card p-4">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
-                                        <span class="badge bg-info text-dark mb-2 px-3 py-1 fw-bold">แรงดันรวมทั้งระบบ (COMBINED VOLTAGE MODULE 1 - 14)</span>
-                                        <h1 class="text-white display-3 fw-bold mb-0 mt-1"><span id="systemTotalVoltage">0.00</span> <span class="fs-2 text-info">V</span></h1>
+                                        <span class="badge bg-info text-dark mb-2 px-3 py-2 fs-5 fw-bold">แรงดันรวมทั้งระบบ (COMBINED VOLTAGE MODULE 1 - 14)</span>
+                                        <h1 class="text-white display-1 fw-bold mb-0 mt-1"><span id="systemTotalVoltage">0.00</span> <span class="display-4 text-info">V</span></h1>
                                     </div>
                                     <div>
                                         <svg class="summary-graphic" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -93,20 +97,24 @@
                         </div>
                     </div>
 
-                    <!-- Charts Section: แบ่งครึ่งซ้าย-ขวา สมดุลเต็มจอ -->
-                    <div class="row g-4">
-                        <div class="col-xl-6 col-lg-12">
-                            <div class="card p-4 h-100">
-                                <h5 class="fw-bold mb-3 text-white"><i class="fa-solid fa-chart-line text-info"></i> แรงดันต่อโมดูล (Voltage per Module)</h5>
-                                <div style="position: relative; height: 280px;">
+                    <!-- Voltage Chart Section -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card p-4">
+                                <h3 class="fw-bold mb-3 text-white"><i class="fa-solid fa-chart-line text-info"></i> แรงดันต่อโมดูล (Voltage per Module)</h3>
+                                <div style="position: relative; height: 350px;">
                                     <canvas id="voltageChart"></canvas>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-xl-6 col-lg-12">
-                            <div class="card p-4 h-100">
-                                <h5 class="fw-bold mb-3 text-white"><i class="fa-solid fa-chart-line text-success"></i> อุณหภูมิแต่ละจุด (Temperature Sensors)</h5>
-                                <div style="position: relative; height: 280px;">
+                    </div>
+
+                    <!-- Temperature Chart Section -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card p-4">
+                                <h3 class="fw-bold mb-3 text-white"><i class="fa-solid fa-chart-line text-success"></i> อุณหภูมิแต่ละจุด (Temperature Sensors)</h3>
+                                <div style="position: relative; height: 350px;">
                                     <canvas id="tempChart"></canvas>
                                 </div>
                             </div>
@@ -116,21 +124,21 @@
 
                 <!-- ================= TAB 2: BMU-01 ================= -->
                 <div id="section-bmu1" class="content-section">
-                    <h4 class="fw-bold mb-3 text-warning"><i class="fa-solid fa-bolt"></i> รายละเอียดชุดอุปกรณ์ BMU-01</h4>
-                    <h5 class="text-secondary fw-semibold mb-3">แรงดันรายโมดูล (Module Voltages - BMU-01)</h5>
+                    <h2 class="fw-bold mb-3 text-warning display-6"><i class="fa-solid fa-bolt"></i> รายละเอียดชุดอุปกรณ์ BMU-01</h2>
+                    <h3 class="text-secondary fw-semibold mb-3 fs-3">แรงดันรายโมดูล (Module Voltages - BMU-01)</h3>
                     <div id="bmu1ModuleContainer" class="row g-3 mb-4"></div>
 
-                    <h5 class="text-secondary fw-semibold mb-3">อุณหภูมิระบบ (Temperature Sensors - BMU-01)</h5>
+                    <h3 class="text-secondary fw-semibold mb-3 fs-3">อุณหภูมิระบบ (Temperature Sensors - BMU-01)</h3>
                     <div id="bmu1TempContainer" class="row g-3"></div>
                 </div>
 
                 <!-- ================= TAB 3: BMU-02 ================= -->
                 <div id="section-bmu2" class="content-section">
-                    <h4 class="fw-bold mb-3 text-info"><i class="fa-solid fa-bolt"></i> รายละเอียดชุดอุปกรณ์ BMU-02</h4>
-                    <h5 class="text-secondary fw-semibold mb-3">แรงดันรายโมดูล (Module Voltages - BMU-02)</h5>
+                    <h2 class="fw-bold mb-3 text-info display-6"><i class="fa-solid fa-bolt"></i> รายละเอียดชุดอุปกรณ์ BMU-02</h2>
+                    <h3 class="text-secondary fw-semibold mb-3 fs-3">แรงดันรายโมดูล (Module Voltages - BMU-02)</h3>
                     <div id="bmu2ModuleContainer" class="row g-3 mb-4"></div>
 
-                    <h5 class="text-secondary fw-semibold mb-3">อุณหภูมิระบบ (Temperature Sensors - BMU-02)</h5>
+                    <h3 class="text-secondary fw-semibold mb-3 fs-3">อุณหภูมิระบบ (Temperature Sensors - BMU-02)</h3>
                     <div id="bmu2TempContainer" class="row g-3"></div>
                 </div>
 
@@ -157,7 +165,7 @@
             bmu1ModuleContainer.innerHTML += `
                 <div class="col-md-4 col-sm-6">
                     <div class="card p-3 text-center">
-                        <small class="text-secondary fw-bold">BMU-01 - Module ${i}</small>
+                        <span class="text-secondary fs-4 fw-bold">BMU-01 - Module ${i}</span>
                         <div class="icon-top-container mt-2" id="battery-svg-${i}"></div>
                         <div class="mt-1">
                             <span id="m${i}" class="value-display text-white">0.000</span>
@@ -174,7 +182,7 @@
             bmu1TempContainer.innerHTML += `
                 <div class="col-md-4 col-sm-6">
                     <div class="card p-3 text-center">
-                        <small class="text-secondary fw-bold">${bmu1TempNames[i-1]}</small>
+                        <span class="text-secondary fs-4 fw-bold">${bmu1TempNames[i-1]}</span>
                         <div class="icon-top-container mt-2" id="temp-svg-${i}"></div>
                         <div class="mt-1">
                             <span id="t${i}" class="value-display text-white">0.0</span>
@@ -191,7 +199,7 @@
             bmu2ModuleContainer.innerHTML += `
                 <div class="col-md-4 col-sm-6">
                     <div class="card p-3 text-center">
-                        <small class="text-secondary fw-bold">BMU-02 - Module ${i}</small>
+                        <span class="text-secondary fs-4 fw-bold">BMU-02 - Module ${i}</span>
                         <div class="icon-top-container mt-2" id="battery-svg-${globalId}"></div>
                         <div class="mt-1">
                             <span id="m${globalId}" class="value-display text-white">0.000</span>
@@ -209,7 +217,7 @@
             bmu2TempContainer.innerHTML += `
                 <div class="col-md-4 col-sm-6">
                     <div class="card p-3 text-center">
-                        <small class="text-secondary fw-bold">${bmu2TempNames[i-1]}</small>
+                        <span class="text-secondary fs-4 fw-bold">${bmu2TempNames[i-1]}</span>
                         <div class="icon-top-container mt-2" id="temp-svg-${globalId}"></div>
                         <div class="mt-1">
                             <span id="t${globalId}" class="value-display text-white">0.0</span>
@@ -219,8 +227,9 @@
                 </div>`;
         }
 
-        Chart.defaults.color = '#94a3b8';
+        Chart.defaults.color = '#e2e8f0';
         Chart.defaults.borderColor = '#2a364f';
+        Chart.defaults.font.size = 16; // ขยายขนาดตัวหนังสือในกราฟให้ใหญ่ขึ้นด้วย
 
         // กราฟแรงดัน
         const ctxV = document.getElementById('voltageChart').getContext('2d');
@@ -231,7 +240,7 @@
                 datasets: [{ 
                     label: 'Voltage (V)', 
                     data: Array(14).fill(0), 
-                    backgroundColor: 'rgba(56, 189, 248, 0.7)', 
+                    backgroundColor: 'rgba(56, 189, 248, 0.8)', 
                     borderColor: '#38bdf8', 
                     borderWidth: 2,
                     borderRadius: 6
@@ -249,7 +258,7 @@
                 datasets: [{ 
                     label: 'Temperature (°C)', 
                     data: Array(6).fill(0), 
-                    backgroundColor: 'rgba(52, 211, 153, 0.7)', 
+                    backgroundColor: 'rgba(52, 211, 153, 0.8)', 
                     borderColor: '#34d399', 
                     borderWidth: 2,
                     borderRadius: 6
