@@ -124,34 +124,34 @@
                 if(data && data.values) {
                     let vals = data.values;
                     
-                    // โครงสร้าง Index ของข้อมูลใน Google Sheets:
-                    // Index 0-6   : แรงดัน Node 1 (โมดูล 1-7)
-                    // Index 7-9   : อุณหภูมิ Node 1 (T1, T4, Room)
-                    // Index 10-16 : แรงดัน Node 2 (โมดูล 1-7)
-                    // Index 17-19 : อุณหภูมิ Node 2 (T1, T4, Room)
-                    // Index 20    : สถานะระบบ (Status)
+                    // ปรับลำดับการอ่าน Index ตามชุดข้อมูลจริง:
+                    // Node 1 Voltages: Index 0 - 6 (7 โมดูล)
+                    // Node 1 Temps:    Index 7 - 9 (3 ค่า)
+                    // Node 2 Temps:    Index 10 - 12 (3 ค่า - ถูกเลื่อนขึ้นมาอยู่ก่อนแรงดัน Node 2 ในอาเรย์ที่ส่งมา)
+                    // Node 2 Voltages: Index 13 - 19 (7 โมดูล)
+                    // Status:          Index 20
 
-                    // 1. แสดงผลแรงดัน Node 1 (โมดูล 1-7)
+                    // 1. แรงดัน Node 1 (โมดูล 1-7) -> Index 0 ถึง 6
                     for (let i = 0; i < 7; i++) {
                         document.getElementById(`m${i+1}`).innerText = parseFloat(vals[i]).toFixed(3);
                     }
 
-                    // 2. แสดงผลแรงดัน Node 2 (โมดูล 8-14 บนหน้าเว็บ)
-                    for (let i = 0; i < 7; i++) {
-                        document.getElementById(`m${i+8}`).innerText = parseFloat(vals[10 + i]).toFixed(3);
-                    }
-
-                    // 3. แสดงผลอุณหภูมิ Node 1 (ตัวที่ 1-3)
+                    // 2. อุณหภูมิ Node 1 -> Index 7 ถึง 9
                     for (let i = 0; i < 3; i++) {
                         document.getElementById(`t${i+1}`).innerText = parseFloat(vals[7 + i]).toFixed(1);
                     }
 
-                    // 4. แสดงผลอุณหภูมิ Node 2 (ตัวที่ 4-6 บนหน้าเว็บ)
+                    // 3. อุณหภูมิ Node 2 -> Index 10 ถึง 12
                     for (let i = 0; i < 3; i++) {
-                        document.getElementById(`t${i+4}`).innerText = parseFloat(vals[17 + i]).toFixed(1);
+                        document.getElementById(`t${i+4}`).innerText = parseFloat(vals[10 + i]).toFixed(1);
                     }
 
-                    // 5. แสดงสถานะระบบ
+                    // 4. แรงดัน Node 2 (โมดูล 1-7) -> Index 13 ถึง 19
+                    for (let i = 0; i < 7; i++) {
+                        document.getElementById(`m${i+8}`).innerText = parseFloat(vals[13 + i]).toFixed(3);
+                    }
+
+                    // 5. แสดงสถานะระบบ -> Index 20
                     let status = vals[20];
                     let badge = document.getElementById('systemStatus');
                     badge.innerText = status;
