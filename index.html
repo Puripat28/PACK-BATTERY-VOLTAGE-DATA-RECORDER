@@ -145,7 +145,7 @@
         // ตั้งค่ากราฟแรงดันเปรียบเทียบ 14 โมดูล (สีฟ้าเรืองแสง)
         const ctxV = document.getElementById('voltageChart').getContext('2d');
         const voltageChart = new Chart(ctxV, {
-            type: 'bar', // ใช้ Bar Chart หรือ Line Chart ก็ได้เพื่อให้เห็นเปรียบเทียบชัดเจน
+            type: 'bar',
             data: { 
                 labels: Array.from({length: 14}, (_, i) => `M${i+1}`), 
                 datasets: [{ 
@@ -192,16 +192,16 @@
             }
         });
 
-        // ฟังก์ชันสร้างไอคอนแบตเตอรี่ด้านบน
+        // ฟังก์ชันสร้างไอคอนแบตเตอรี่ (เงื่อนไขเดิม: เขียวปกติ, ส้มต่ำ <6.3, แดงสูง >8.0)
         function renderBatterySvg(index, val) {
             let container = document.getElementById(`battery-svg-${index}`);
             if (!container) return;
 
-            let fillColor = "#38bdf8"; // สีฟ้าสว่างเรืองแสง
+            let fillColor = "#22c55e"; // สีเขียวเรืองแสง (ปกติ)
             if (val < 6.3) {
-                fillColor = "#facc15"; // สีเหลืองทองสว่าง
+                fillColor = "#f97316"; // สีส้มเรืองแสง (ต่ำ)
             } else if (val > 8.0) {
-                fillColor = "#c084fc"; // สีม่วงสว่าง (เลี่ยงสีแดง)
+                fillColor = "#ef4444"; // สีแดงเรืองแสง (สูงเกิน)
             }
 
             container.innerHTML = `
@@ -215,14 +215,14 @@
             `;
         }
 
-        // ฟังก์ชันสร้างไอคอนเทอร์โมมิเตอร์ด้านบน
+        // ฟังก์ชันสร้างไอคอนเทอร์โมมิเตอร์ (เงื่อนไขเดิม: เขียว 0-55°C, แดง >55°C)
         function renderTempSvg(index, val) {
             let container = document.getElementById(`temp-svg-${index}`);
             if (!container) return;
 
-            let fillColor = "#34d399"; // สีเขียวสว่างเรืองแสง
+            let fillColor = "#22c55e"; // สีเขียวเรืองแสง (ปกติ)
             if (val > 55.0) {
-                fillColor = "#f472b6"; // สีชมพูสว่างเรืองแสง (เลี่ยงสีแดง)
+                fillColor = "#ef4444"; // สีแดงเรืองแสง (ร้อนเกิน)
             }
 
             container.innerHTML = `
