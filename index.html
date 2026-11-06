@@ -43,6 +43,7 @@
                 <p class="text-secondary fs-2 mb-0">ระบบมอนิเตอร์แรงดันและอุณหภูมิแบบเรียลไทม์ (5 Nodes)</p>
             </div>
             <div class="col-xl-3 col-lg-4 text-lg-end mt-3 mt-lg-0">
+                <!-- ป้ายสถานะรวมของระบบ (หากมีโหนดใดโหนดหนึ่ง Danger จะเปลี่ยนเป็นสีแดง) -->
                 <span id="systemStatus" class="badge bg-success status-badge">NORMAL</span>
             </div>
         </div>
@@ -121,12 +122,16 @@
                     </div>
                 </div>
 
-                <!-- ================= TAB: BMU 1 ถึง 5 (มีทั้งกราฟเส้นตามเวลา และกราฟแท่งรายโมดูล) ================= -->
+                <!-- ================= TAB: BMU 1 ถึง 5 (แยกแสดงสถานะเฉพาะแต่ละโหนด) ================= -->
                 <script>
                     for (let bmu = 1; bmu <= 5; bmu++) {
                         document.write(`
                             <div id="section-bmu${bmu}" class="content-section">
-                                <h2 class="fw-bold mb-4 text-warning display-5"><i class="fa-solid fa-bolt"></i> รายละเอียดชุดอุปกรณ์ BMU-0${bmu}</h2>
+                                <div class="d-flex justify-content-between align-items-center mb-4">
+                                    <h2 class="fw-bold text-warning display-5 mb-0"><i class="fa-solid fa-bolt"></i> รายละเอียดชุดอุปกรณ์ BMU-0${bmu}</h2>
+                                    <!-- ป้ายสถานะแยกราย BMU -->
+                                    <span id="bmuStatusBadge${bmu}" class="badge bg-success fs-3 px-4 py-2">NORMAL</span>
+                                </div>
                                 
                                 <!-- แถวที่ 1: กราฟเส้นแนวโน้มตามเวลา -->
                                 <div class="row mb-4">
@@ -170,7 +175,7 @@
 
     <!-- JavaScript -->
     <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycby9wvSslh4TvBYe-4juTvuLuDy7xfnaHUhSeUbjpnBg4eYXuXvdJ7ImmWhEBp_-SCljzg/exec";
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwxYZ9oH2YhdqrbD-2kBBqq6wevuTHv-sOVW_T02kfu1YRc0RBA89UCJ_4Fm9hCOSnAlQ/exec";
 
         function switchTab(tabId, event) {
             event.preventDefault();
@@ -274,7 +279,7 @@
                 if(data && data.values) {
                     let vals = data.values;
                     let totalSystemVoltage = 0;
-                    let systemIsDanger = false;
+                    let systemIsDanger = false; // ตัวแปรเช็คภาพรวมระบบ
 
                     let valIdx = 0;
                     for (let bmu = 1; bmu <= 5; bmu++) {
@@ -293,9 +298,23 @@
                             valIdx++;
                         }
                         
+                        // อ่านค่าสถานะเฉพาะของ BMU นี้
                         let bmuStatus = vals[valIdx] ? String(vals[valIdx]).trim().toUpperCase() : "NORMAL";
                         valIdx++; 
 
+                        // อัปเดตสถานะแยกตามราย BMU บนหน้าจอแท็บของตัวเอง
+                        let bmuBadge = document.getElementById(`bmuStatusBadge${bmu}`);
+                        if (bmuBadge) {
+                            if (bmuStatus === "DANGER") {
+                                bmuBadge.innerText = "DANGER";
+                                bmuBadge.className = "badge bg-danger fs-3 px-4 py-2";
+                            } else {
+                                bmuBadge.innerText = "NORMAL";
+                                bmuBadge.className = "badge bg-success fs-3 px-4 py-2";
+                            }
+                        }
+
+                        // ตรวจสอบว่าถ้ามีโหนดใดโหนดหนึ่งเป็น DANGER ให้ภาพรวมเป็น DANGER ด้วย
                         if (bmuStatus === "DANGER") {
                             systemIsDanger = true;
                         }
@@ -375,14 +394,14 @@
                         }
                     }
 
-                    // อัปเดตป้ายสถานะตามความเป็นจริง
-                    let badge = document.getElementById('systemStatus');
+                    // อัปเดตป้ายสถานะภาพรวมมุมขวาบน (ถ้ามีตัวใดตัวหนึ่ง Danger ภาพรวมจะแดงทันที)
+                    let globalBadge = document.getElementById('systemStatus');
                     if (systemIsDanger) {
-                        badge.innerText = "DANGER";
-                        badge.className = "badge status-badge bg-danger";
+                        globalBadge.innerText = "DANGER";
+                        globalBadge.className = "badge status-badge bg-danger";
                     } else {
-                        badge.innerText = "NORMAL";
-                        badge.className = "badge status-badge bg-success";
+                        globalBadge.innerText = "NORMAL";
+                        globalBadge.className = "badge status-badge bg-success";
                     }
                 }
             } catch (error) {
