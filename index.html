@@ -121,31 +121,66 @@
                     </div>
                 </div>
 
-                <!-- ================= TAB: BMU 1 ถึง 5 (เปลี่ยนเป็นกราฟแท่งทั้งหมด) ================= -->
-                <script>
-                    // สร้างโครงสร้าง Tab ของ BMU 1 ถึง 5 แบบอัตโนมัติ
-                    for (let bmu = 1; bmu <= 5; bmu++) {
-                        document.write(`
-                            <div id="section-bmu${bmu}" class="content-section">
-                                <h2 class="fw-bold mb-4 text-warning display-5"><i class="fa-solid fa-bolt"></i> รายละเอียดชุดอุปกรณ์ BMU-0${bmu}</h2>
-                                <div class="row mb-4">
-                                    <div class="col-xl-6 mb-4 mb-xl-0">
-                                        <div class="card p-4">
-                                            <h3 class="fw-bold mb-3 text-info fs-3">กราฟแท่งแรงดันรายโมดูล (BMU-0${bmu})</h3>
-                                            <div style="position: relative; height: 350px;"><canvas id="bmu${bmu}VoltageBarChart"></canvas></div>
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-6">
-                                        <div class="card p-4">
-                                            <h3 class="fw-bold mb-3 text-success fs-3">กราฟแท่งอุณหภูมิระบบ (BMU-0${bmu})</h3>
-                                            <div style="position: relative; height: 350px;"><canvas id="bmu${bmu}TempBarChart"></canvas></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        `);
-                    }
-                </script>
+                <!-- ================= TAB: BMU 1 ถึง 5 (กราฟแท่งทั้งหมด) ================= -->
+                <div id="section-bmu1" class="content-section">
+                    <h2 class="fw-bold mb-4 text-warning display-5"><i class="fa-solid fa-bolt"></i> รายละเอียดชุดอุปกรณ์ BMU-01</h2>
+                    <div class="row mb-4">
+                        <div class="col-xl-6 mb-4 mb-xl-0">
+                            <div class="card p-4"><h3 class="fw-bold mb-3 text-info fs-3">กราฟแท่งแรงดันรายโมดูล (BMU-01)</h3><div style="position: relative; height: 350px;"><canvas id="bmu1VoltageBarChart"></canvas></div></div>
+                        </div>
+                        <div class="col-xl-6">
+                            <div class="card p-4"><h3 class="fw-bold mb-3 text-success fs-3">กราฟแท่งอุณหภูมิระบบ (BMU-01)</h3><div style="position: relative; height: 350px;"><canvas id="bmu1TempBarChart"></canvas></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="section-bmu2" class="content-section">
+                    <h2 class="fw-bold mb-4 text-warning display-5"><i class="fa-solid fa-bolt"></i> รายละเอียดชุดอุปกรณ์ BMU-02</h2>
+                    <div class="row mb-4">
+                        <div class="col-xl-6 mb-4 mb-xl-0">
+                            <div class="card p-4"><h3 class="fw-bold mb-3 text-info fs-3">กราฟแท่งแรงดันรายโมดูล (BMU-02)</h3><div style="position: relative; height: 350px;"><canvas id="bmu2VoltageBarChart"></canvas></div></div>
+                        </div>
+                        <div class="col-xl-6">
+                            <div class="card p-4"><h3 class="fw-bold mb-3 text-success fs-3">กราฟแท่งอุณหภูมิระบบ (BMU-02)</h3><div style="position: relative; height: 350px;"><canvas id="bmu2TempBarChart"></canvas></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="section-bmu3" class="content-section">
+                    <h2 class="fw-bold mb-4 text-warning display-5"><i class="fa-solid fa-bolt"></i> รายละเอียดชุดอุปกรณ์ BMU-03</h2>
+                    <div class="row mb-4">
+                        <div class="col-xl-6 mb-4 mb-xl-0">
+                            <div class="card p-4"><h3 class="fw-bold mb-3 text-info fs-3">กราฟแท่งแรงดันรายโมดูล (BMU-03)</h3><div style="position: relative; height: 350px;"><canvas id="bmu3VoltageBarChart"></canvas></div></div>
+                        </div>
+                        <div class="col-xl-6">
+                            <div class="card p-4"><h3 class="fw-bold mb-3 text-success fs-3">กราฟแท่งอุณหภูมิระบบ (BMU-03)</h3><div style="position: relative; height: 350px;"><canvas id="bmu3TempBarChart"></canvas></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="section-bmu4" class="content-section">
+                    <h2 class="fw-bold mb-4 text-warning display-5"><i class="fa-solid fa-bolt"></i> รายละเอียดชุดอุปกรณ์ BMU-04</h2>
+                    <div class="row mb-4">
+                        <div class="col-xl-6 mb-4 mb-xl-0">
+                            <div class="card p-4"><h3 class="fw-bold mb-3 text-info fs-3">กราฟแท่งแรงดันรายโมดูล (BMU-04)</h3><div style="position: relative; height: 350px;"><canvas id="bmu4VoltageBarChart"></canvas></div></div>
+                        </div>
+                        <div class="col-xl-6">
+                            <div class="card p-4"><h3 class="fw-bold mb-3 text-success fs-3">กราฟแท่งอุณหภูมิระบบ (BMU-04)</h3><div style="position: relative; height: 350px;"><canvas id="bmu4TempBarChart"></canvas></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="section-bmu5" class="content-section">
+                    <h2 class="fw-bold mb-4 text-warning display-5"><i class="fa-solid fa-bolt"></i> รายละเอียดชุดอุปกรณ์ BMU-05</h2>
+                    <div class="row mb-4">
+                        <div class="col-xl-6 mb-4 mb-xl-0">
+                            <div class="card p-4"><h3 class="fw-bold mb-3 text-info fs-3">กราฟแท่งแรงดันรายโมดูล (BMU-05)</h3><div style="position: relative; height: 350px;"><canvas id="bmu5VoltageBarChart"></canvas></div></div>
+                        </div>
+                        <div class="col-xl-6">
+                            <div class="card p-4"><h3 class="fw-bold mb-3 text-success fs-3">กราฟแท่งอุณหภูมิระบบ (BMU-05)</h3><div style="position: relative; height: 350px;"><canvas id="bmu5TempBarChart"></canvas></div></div>
+                        </div>
+                    </div>
+                </div>
 
             </div>
         </div>
