@@ -170,7 +170,7 @@
 
     <!-- JavaScript -->
     <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwxYZ9oH2YhdqrbD-2kBBqq6wevuTHv-sOVW_T02kfu1YRc0RBA89UCJ_4Fm9hCOSnAlQ/exec";
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycby9wvSslh4TvBYe-4juTvuLuDy7xfnaHUhSeUbjpnBg4eYXuXvdJ7ImmWhEBp_-SCljzg/exec";
 
         function switchTab(tabId, event) {
             event.preventDefault();
@@ -274,6 +274,7 @@
                 if(data && data.values) {
                     let vals = data.values;
                     let totalSystemVoltage = 0;
+                    let systemIsDanger = false;
 
                     let valIdx = 0;
                     for (let bmu = 1; bmu <= 5; bmu++) {
@@ -291,7 +292,13 @@
                             bmuT.push(t);
                             valIdx++;
                         }
-                        valIdx++; // ข้ามสถานะ
+                        
+                        let bmuStatus = vals[valIdx] ? String(vals[valIdx]).trim().toUpperCase() : "NORMAL";
+                        valIdx++; 
+
+                        if (bmuStatus === "DANGER") {
+                            systemIsDanger = true;
+                        }
 
                         // อัปเดตกราฟแท่งสดๆ
                         bmuVoltageBarCharts[bmu].data.datasets[0].data = bmuV;
@@ -368,9 +375,15 @@
                         }
                     }
 
+                    // อัปเดตป้ายสถานะตามความเป็นจริง
                     let badge = document.getElementById('systemStatus');
-                    badge.innerText = "NORMAL";
-                    badge.className = "badge status-badge bg-success";
+                    if (systemIsDanger) {
+                        badge.innerText = "DANGER";
+                        badge.className = "badge status-badge bg-danger";
+                    } else {
+                        badge.innerText = "NORMAL";
+                        badge.className = "badge status-badge bg-success";
+                    }
                 }
             } catch (error) {
                 console.error("Error fetching data:", error);
