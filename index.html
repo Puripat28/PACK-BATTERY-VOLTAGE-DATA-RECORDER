@@ -11,14 +11,12 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { background-color: #0b0f19; color: #f8fafc; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 1.4rem; }
+        body { background-color: #0b0f19; color: #f8fafc; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 1.4rem; overflow-x: hidden; }
         .card { background-color: #1a2234; border: 1px solid #2a364f; border-radius: 16px; box-shadow: 0 8px 16px rgba(0,0,0,0.4); color: #fff; transition: transform 0.2s; }
         .card:hover { border-color: #38bdf8; }
         
-        /* ป้ายสถานะตัวหนังสือใหญ่พิเศษ */
         .status-badge { font-size: 2rem !important; padding: 15px 40px; border-radius: 50px; font-weight: bold; letter-spacing: 1px; }
         
-        /* เมนูด้านซ้าย */
         .sidebar-card { background-color: #161e2e; border: 1px solid #2a364f; border-radius: 16px; padding: 20px 15px; position: sticky; top: 20px; }
         .nav-link-custom { display: block; padding: 16px 20px; color: #94a3b8; font-size: 1.3rem !important; font-weight: 700; text-decoration: none; border-radius: 12px; margin-bottom: 10px; transition: all 0.2s; }
         .nav-link-custom:hover { background-color: #1e293b; color: #38bdf8; }
@@ -26,12 +24,18 @@
 
         .summary-card { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-left: 14px solid #38bdf8; border: 1px solid #334155; }
         
-        /* ขยายขนาดตัวเลขค่าแรงดันและอุณหภูมิให้ใหญ่สะใจที่สุด */
         .value-display { font-size: 3rem !important; font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.4); }
         .unit-label { font-size: 1.8rem !important; font-weight: 800; color: #94a3b8; margin-left: 8px; }
         
         .content-section { display: none; }
         .content-section.active { display: block; }
+
+        @media (max-width: 768px) {
+            body { font-size: 1rem; }
+            .value-display { font-size: 2.2rem !important; }
+            .unit-label { font-size: 1.4rem !important; }
+            .status-badge { font-size: 1.2rem !important; padding: 8px 20px; }
+        }
     </style>
 </head>
 <body>
@@ -105,7 +109,7 @@
                     <div class="row mb-4">
                         <div class="col-12">
                             <div class="card p-4">
-                                <h2 class="fw-bold mb-3 text-white display-6"><i class="fa-solid fa-chart-line text-info"></i> กราฟเส้นแนวโน้มแรงดันรวม (แกน X: เวลา | แกน Y: แรงดัน V)</h2>
+                                <h2 class="fw-bold mb-3 text-white display-6"><i class="fa-solid fa-chart-line text-info"></i> กราฟเส้นแนวโน้มแรงดันรวม</h2>
                                 <div style="position: relative; height: 450px;"><canvas id="voltageLineHistoryChart"></canvas></div>
                             </div>
                         </div>
@@ -115,7 +119,7 @@
                     <div class="row mb-4">
                         <div class="col-12">
                             <div class="card p-4">
-                                <h2 class="fw-bold mb-3 text-white display-6"><i class="fa-solid fa-chart-line text-success"></i> กราฟเส้นแนวโน้มอุณหภูมิ (แกน X: เวลา | แกน Y: อุณหภูมิ °C)</h2>
+                                <h2 class="fw-bold mb-3 text-white display-6"><i class="fa-solid fa-chart-line text-success"></i> กราฟเส้นแนวโน้มอุณหภูมิ</h2>
                                 <div style="position: relative; height: 450px;"><canvas id="tempLineHistoryChart"></canvas></div>
                             </div>
                         </div>
@@ -127,10 +131,10 @@
                     <h2 class="fw-bold mb-3 text-warning display-5"><i class="fa-solid fa-bolt"></i> รายละเอียดชุดอุปกรณ์ BMU-01</h2>
                     <div class="row mb-4">
                         <div class="col-xl-6 mb-4 mb-xl-0">
-                            <div class="card p-4"><h3 class="fw-bold mb-3 text-info fs-3">กราฟเส้นแรงดัน (BMU-01: แกน X = เวลา)</h3><div style="position: relative; height: 350px;"><canvas id="bmu1VoltageLineChart"></canvas></div></div>
+                            <div class="card p-4"><h3 class="fw-bold mb-3 text-info fs-3">กราฟเส้นแรงดัน (BMU-01)</h3><div style="position: relative; height: 350px;"><canvas id="bmu1VoltageLineChart"></canvas></div></div>
                         </div>
                         <div class="col-xl-6">
-                            <div class="card p-4"><h3 class="fw-bold mb-3 text-success fs-3">กราฟเส้นอุณหภูมิ (BMU-01: แกน X = เวลา)</h3><div style="position: relative; height: 350px;"><canvas id="bmu1TempLineChart"></canvas></div></div>
+                            <div class="card p-4"><h3 class="fw-bold mb-3 text-success fs-3">กราฟเส้นอุณหภูมิ (BMU-01)</h3><div style="position: relative; height: 350px;"><canvas id="bmu1TempLineChart"></canvas></div></div>
                         </div>
                     </div>
                     <h3 class="text-secondary fw-semibold mb-3 display-6">แรงดันรายโมดูล</h3>
@@ -143,10 +147,10 @@
                     <h2 class="fw-bold mb-3 text-info display-5"><i class="fa-solid fa-bolt"></i> รายละเอียดชุดอุปกรณ์ BMU-02</h2>
                     <div class="row mb-4">
                         <div class="col-xl-6 mb-4 mb-xl-0">
-                            <div class="card p-4"><h3 class="fw-bold mb-3 text-info fs-3">กราฟเส้นแรงดัน (BMU-02: แกน X = เวลา)</h3><div style="position: relative; height: 350px;"><canvas id="bmu2VoltageLineChart"></canvas></div></div>
+                            <div class="card p-4"><h3 class="fw-bold mb-3 text-info fs-3">กราฟเส้นแรงดัน (BMU-02)</h3><div style="position: relative; height: 350px;"><canvas id="bmu2VoltageLineChart"></canvas></div></div>
                         </div>
                         <div class="col-xl-6">
-                            <div class="card p-4"><h3 class="fw-bold mb-3 text-success fs-3">กราฟเส้นอุณหภูมิ (BMU-02: แกน X = เวลา)</h3><div style="position: relative; height: 350px;"><canvas id="bmu2TempLineChart"></canvas></div></div>
+                            <div class="card p-4"><h3 class="fw-bold mb-3 text-success fs-3">กราฟเส้นอุณหภูมิ (BMU-02)</h3><div style="position: relative; height: 350px;"><canvas id="bmu2TempLineChart"></canvas></div></div>
                         </div>
                     </div>
                     <h3 class="text-secondary fw-semibold mb-3 display-6">แรงดันรายโมดูล</h3>
@@ -159,10 +163,10 @@
                     <h2 class="fw-bold mb-3 text-info display-5"><i class="fa-solid fa-bolt"></i> รายละเอียดชุดอุปกรณ์ BMU-03</h2>
                     <div class="row mb-4">
                         <div class="col-xl-6 mb-4 mb-xl-0">
-                            <div class="card p-4"><h3 class="fw-bold mb-3 text-info fs-3">กราฟเส้นแรงดัน (BMU-03: แกน X = เวลา)</h3><div style="position: relative; height: 350px;"><canvas id="bmu3VoltageLineChart"></canvas></div></div>
+                            <div class="card p-4"><h3 class="fw-bold mb-3 text-info fs-3">กราฟเส้นแรงดัน (BMU-03)</h3><div style="position: relative; height: 350px;"><canvas id="bmu3VoltageLineChart"></canvas></div></div>
                         </div>
                         <div class="col-xl-6">
-                            <div class="card p-4"><h3 class="fw-bold mb-3 text-success fs-3">กราฟเส้นอุณหภูมิ (BMU-03: แกน X = เวลา)</h3><div style="position: relative; height: 350px;"><canvas id="bmu3TempLineChart"></canvas></div></div>
+                            <div class="card p-4"><h3 class="fw-bold mb-3 text-success fs-3">กราฟเส้นอุณหภูมิ (BMU-03)</h3><div style="position: relative; height: 350px;"><canvas id="bmu3TempLineChart"></canvas></div></div>
                         </div>
                     </div>
                     <h3 class="text-secondary fw-semibold mb-3 display-6">แรงดันรายโมดูล</h3>
@@ -175,10 +179,10 @@
                     <h2 class="fw-bold mb-3 text-info display-5"><i class="fa-solid fa-bolt"></i> รายละเอียดชุดอุปกรณ์ BMU-04</h2>
                     <div class="row mb-4">
                         <div class="col-xl-6 mb-4 mb-xl-0">
-                            <div class="card p-4"><h3 class="fw-bold mb-3 text-info fs-3">กราฟเส้นแรงดัน (BMU-04: แกน X = เวลา)</h3><div style="position: relative; height: 350px;"><canvas id="bmu4VoltageLineChart"></canvas></div></div>
+                            <div class="card p-4"><h3 class="fw-bold mb-3 text-info fs-3">กราฟเส้นแรงดัน (BMU-04)</h3><div style="position: relative; height: 350px;"><canvas id="bmu4VoltageLineChart"></canvas></div></div>
                         </div>
                         <div class="col-xl-6">
-                            <div class="card p-4"><h3 class="fw-bold mb-3 text-success fs-3">กราฟเส้นอุณหภูมิ (BMU-04: แกน X = เวลา)</h3><div style="position: relative; height: 350px;"><canvas id="bmu4TempLineChart"></canvas></div></div>
+                            <div class="card p-4"><h3 class="fw-bold mb-3 text-success fs-3">กราฟเส้นอุณหภูมิ (BMU-04)</h3><div style="position: relative; height: 350px;"><canvas id="bmu4TempLineChart"></canvas></div></div>
                         </div>
                     </div>
                     <h3 class="text-secondary fw-semibold mb-3 display-6">แรงดันรายโมดูล</h3>
@@ -191,10 +195,10 @@
                     <h2 class="fw-bold mb-3 text-info display-5"><i class="fa-solid fa-bolt"></i> รายละเอียดชุดอุปกรณ์ BMU-05</h2>
                     <div class="row mb-4">
                         <div class="col-xl-6 mb-4 mb-xl-0">
-                            <div class="card p-4"><h3 class="fw-bold mb-3 text-info fs-3">กราฟเส้นแรงดัน (BMU-05: แกน X = เวลา)</h3><div style="position: relative; height: 350px;"><canvas id="bmu5VoltageLineChart"></canvas></div></div>
+                            <div class="card p-4"><h3 class="fw-bold mb-3 text-info fs-3">กราฟเส้นแรงดัน (BMU-05)</h3><div style="position: relative; height: 350px;"><canvas id="bmu5VoltageLineChart"></canvas></div></div>
                         </div>
                         <div class="col-xl-6">
-                            <div class="card p-4"><h3 class="fw-bold mb-3 text-success fs-3">กราฟเส้นอุณหภูมิ (BMU-05: แกน X = เวลา)</h3><div style="position: relative; height: 350px;"><canvas id="bmu5TempLineChart"></canvas></div></div>
+                            <div class="card p-4"><h3 class="fw-bold mb-3 text-success fs-3">กราฟเส้นอุณหภูมิ (BMU-05)</h3><div style="position: relative; height: 350px;"><canvas id="bmu5TempLineChart"></canvas></div></div>
                         </div>
                     </div>
                     <h3 class="text-secondary fw-semibold mb-3 display-6">แรงดันรายโมดูล</h3>
@@ -209,7 +213,7 @@
 
     <!-- JavaScript -->
     <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwGqBDAD7PNr9FC1kMfd14r0D8eWpcca5BmGuIJTpMa_EtJMy7O5FyR2eH6J3MGgMuG/exec";
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzDitPgrvVzFt_Zccq_PwfbWEhJsRIhxAgN2XNrAio-6zUWsHQb7v8oGhaGVvxxUbqWUw/exec";
 
         function switchTab(tabId, event) {
             event.preventDefault();
@@ -220,7 +224,6 @@
             event.currentTarget.classList.add('active');
         }
 
-        // ลูปสร้างการ์ด HTML แสดงตัวเลขค่าแรงดันและอุณหภูมิสำหรับ BMU 1 ถึง 5
         for (let bmu = 1; bmu <= 5; bmu++) {
             let modContainer = document.getElementById(`bmu${bmu}ModuleContainer`);
             for (let i = 1; i <= 7; i++) {
@@ -258,21 +261,18 @@
         Chart.defaults.borderColor = '#2a364f';
         Chart.defaults.font.size = 16;
 
-        // หน้าหลัก: กราฟเส้นแรงดันรวมตามเวลา
         const voltageLineHistoryChart = new Chart(document.getElementById('voltageLineHistoryChart').getContext('2d'), {
             type: 'line',
             data: { labels: [], datasets: [{ label: 'Total Voltage (V)', data: [], borderColor: '#38bdf8', backgroundColor: 'rgba(56, 189, 248, 0.2)', borderWidth: 3, fill: true, tension: 0.3, pointRadius: 4 }] },
             options: { responsive: true, maintainAspectRatio: false, scales: { x: { title: { display: true, text: 'เวลา (Time)' } }, y: { title: { display: true, text: 'Voltage (V)' } } } }
         });
 
-        // หน้าหลัก: กราฟเส้นอุณหภูมิรวมตามเวลา
         const tempLineHistoryChart = new Chart(document.getElementById('tempLineHistoryChart').getContext('2d'), {
             type: 'line',
             data: { labels: [], datasets: [{ label: 'Avg Temperature (°C)', data: [], borderColor: '#34d399', backgroundColor: 'rgba(52, 211, 153, 0.2)', borderWidth: 3, fill: true, tension: 0.3, pointRadius: 4 }] },
             options: { responsive: true, maintainAspectRatio: false, scales: { x: { title: { display: true, text: 'เวลา (Time)' } }, y: { title: { display: true, text: 'Temperature (°C)' } } } }
         });
 
-        // สร้างกราฟเส้นแยกแต่ละ BMU (1-5) พร้อมฟังก์ชัน Legend คลิกเปิด/ปิดเส้น และ Tooltip โชว์ชื่อโมดูลชัดเจน
         const bmuVoltageLineCharts = {};
         const bmuTempLineCharts = {};
         
@@ -384,12 +384,11 @@
                             document.getElementById(`t${globalTempId}`).innerText = t.toFixed(1);
                             valIdx++;
                         }
-                        valIdx++; // ข้ามสถานะ
+                        valIdx++; 
                     }
 
                     document.getElementById('systemTotalVoltage').innerText = totalSystemVoltage.toFixed(2);
 
-                    // จัดการข้อมูลประวัติ (History) สำหรับกราฟเส้นทั้งหน้าหลักและทุก BMU
                     if (data.history && Array.isArray(data.history)) {
                         let timeLabels = [];
                         let totalVoltHistory = [];
@@ -426,14 +425,13 @@
                                     bmuTHist[b][ti].push(tVal);
                                     rIdx++;
                                 }
-                                rIdx++; // ข้ามสถานะ
+                                rIdx++; 
                             }
 
                             totalVoltHistory.push(rowVoltSum);
                             avgTempHistory.push(tempCount > 0 ? (rowTempSum / tempCount).toFixed(1) : 0);
                         });
 
-                        // อัปเดตกราฟหน้าหลัก
                         voltageLineHistoryChart.data.labels = timeLabels;
                         voltageLineHistoryChart.data.datasets[0].data = totalVoltHistory;
                         voltageLineHistoryChart.update();
@@ -442,7 +440,6 @@
                         tempLineHistoryChart.data.datasets[0].data = avgTempHistory;
                         tempLineHistoryChart.update();
 
-                        // อัปเดตกราฟเส้นราย BMU
                         for (let bmu = 1; bmu <= 5; bmu++) {
                             bmuVoltageLineCharts[bmu].data.labels = timeLabels;
                             for (let i = 0; i < 7; i++) {
