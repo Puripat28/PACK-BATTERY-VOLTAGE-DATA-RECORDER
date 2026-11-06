@@ -213,7 +213,7 @@
 
     <!-- JavaScript -->
     <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzDitPgrvVzFt_Zccq_PwfbWEhJsRIhxAgN2XNrAio-6zUWsHQb7v8oGhaGVvxxUbqWUw/exec";
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz5mQzeJF-Y2slav6xw_KRFgmv31OSIYmieOO2tja9IYvugylfWp62wwnZCE2RWPXjmyQ/exec";
 
         function switchTab(tabId, event) {
             event.preventDefault();
@@ -409,23 +409,21 @@
                             let rowVoltSum = 0;
                             let rowTempSum = 0;
                             let tempCount = 0;
-                            let rIdx = 1;
-
+                            
+                            // จัดเรียง Index ตามรูปแบบ 1 Timestamp + 5 ชุด (ชุดละ 7 แรงดัน, 3 อุณหภูมิ, 1 สถานะ)
                             for (let b = 1; b <= 5; b++) {
+                                let baseIdx = 1 + (b - 1) * 11;
                                 for (let vi = 0; vi < 7; vi++) {
-                                    let vVal = parseFloat(row[rIdx]) || 0;
+                                    let vVal = parseFloat(row[baseIdx + vi]) || 0;
                                     rowVoltSum += vVal;
                                     bmuVHist[b][vi].push(vVal);
-                                    rIdx++;
                                 }
                                 for (let ti = 0; ti < 3; ti++) {
-                                    let tVal = parseFloat(row[rIdx]) || 0;
+                                    let tVal = parseFloat(row[baseIdx + 7 + ti]) || 0;
                                     rowTempSum += tVal;
                                     tempCount++;
                                     bmuTHist[b][ti].push(tVal);
-                                    rIdx++;
                                 }
-                                rIdx++; 
                             }
 
                             totalVoltHistory.push(rowVoltSum);
