@@ -179,7 +179,7 @@
 
     <!-- JavaScript -->
     <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycby9wvSslh4TvBYe-4juTvuLuDy7xfnaHUhSeUbjpnBg4eYXuXvdJ7ImmWhEBp_-SCljzg/exec";
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwCfK63fPMVT4-XT2CyRlCczVlstpsVb-yS4zJOnnOEYgL9A8by1OGNlOjR7TRR-WZISg/exec";
 
         function switchTab(tabId, event) {
             event.preventDefault();
@@ -188,6 +188,19 @@
             
             document.getElementById('section-' + tabId).classList.add('active');
             event.currentTarget.classList.add('active');
+        }
+
+        // แปลงข้อความสถานะเป็นข้อความ/สีของป้าย
+        //   NORMAL            -> เขียว
+        //   WARNING           -> เหลือง
+        //   ว่าง หรือ 0       -> เทา "NO DATA" (ข้อมูลเก่าเกิน 30 วินาที สคริปต์จะส่งค่า 0 มา)
+        //   อย่างอื่น (OVP / UVP / OTP / DANGER) -> แดง แสดงข้อความตามที่ได้รับ และนับว่าผิดปกติ
+        function getStatusStyle(status) {
+            let s = String(status === undefined || status === null ? "" : status).trim().toUpperCase();
+            if (s === "NORMAL")  return { text: "NORMAL",  cls: "bg-success", fault: false };
+            if (s === "WARNING") return { text: "WARNING", cls: "bg-warning text-dark", fault: false };
+            if (s === "" || s === "0") return { text: "NO DATA", cls: "bg-secondary", fault: false };
+            return { text: s, cls: "bg-danger", fault: true };
         }
 
         Chart.defaults.color = '#e2e8f0';
@@ -271,7 +284,7 @@
                 if(data && data.values) {
                     let vals = data.values;
                     let totalSystemVoltage = 0;
-                    let systemIsDanger = false;
+                    let anyFault = false;
 
                     let valIdx = 0;
                     for (let bmu = 1; bmu <= 5; bmu++) {
@@ -290,22 +303,18 @@
                             valIdx++;
                         }
                         
-                        let bmuStatus = vals[valIdx] ? String(vals[valIdx]).trim().toUpperCase() : "NORMAL";
+                        // สถานะของแต่ละชุด (NORMAL / OVP / UVP / OTP) แสดงตามที่ได้รับ
+                        let bmuStyle = getStatusStyle(vals[valIdx]);
                         valIdx++; 
 
                         let bmuBadge = document.getElementById(`bmuStatusBadge${bmu}`);
                         if (bmuBadge) {
-                            if (bmuStatus === "DANGER") {
-                                bmuBadge.innerText = "DANGER";
-                                bmuBadge.className = "badge bg-danger fs-6 px-3 py-1";
-                            } else {
-                                bmuBadge.innerText = "NORMAL";
-                                bmuBadge.className = "badge bg-success fs-6 px-3 py-1";
-                            }
+                            bmuBadge.innerText = bmuStyle.text;
+                            bmuBadge.className = `badge ${bmuStyle.cls} fs-6 px-3 py-1`;
                         }
 
-                        if (bmuStatus === "DANGER") {
-                            systemIsDanger = true;
+                        if (bmuStyle.fault) {
+                            anyFault = true;
                         }
 
                         bmuVoltageBarCharts[bmu].data.datasets[0].data = bmuV;
@@ -315,6 +324,11 @@
                     }
 
                     document.getElementById('systemTotalVoltage').innerText = totalSystemVoltage.toFixed(2);
+
+                    // สถานะรวมทั้งระบบ: ฟิลด์สุดท้ายที่มาสเตอร์ส่งมา (DANGER / NORMAL)
+                    // ถ้าเป็นข้อมูลแถวเก่าที่ยังไม่มีฟิลด์นี้ ให้สรุปเองจากสถานะของแต่ละชุด
+                    let sysRaw = (vals[valIdx] === undefined || vals[valIdx] === null) ? "" : String(vals[valIdx]).trim();
+                    if (sysRaw === "") sysRaw = anyFault ? "DANGER" : "NORMAL";
 
                     if (data.history && Array.isArray(data.history)) {
                         let timeLabels = [];
@@ -380,13 +394,9 @@
                     }
 
                     let globalBadge = document.getElementById('systemStatus');
-                    if (systemIsDanger) {
-                        globalBadge.innerText = "DANGER";
-                        globalBadge.className = "badge status-badge bg-danger";
-                    } else {
-                        globalBadge.innerText = "NORMAL";
-                        globalBadge.className = "badge status-badge bg-success";
-                    }
+                    let sysStyle = getStatusStyle(sysRaw);
+                    globalBadge.innerText = sysStyle.text;
+                    globalBadge.className = `badge status-badge ${sysStyle.cls}`;
                 }
             } catch (error) {
                 console.error("Error fetching data:", error);
